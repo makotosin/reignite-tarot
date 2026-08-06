@@ -1,6 +1,46 @@
 const screens=[...document.querySelectorAll('.screen')];
 const modes={one:{label:'今日の一枚',count:1,positions:['今日の兆し']},answer:{label:'迷いへの答え',count:1,positions:['問いへの答え']},three:{label:'過去・現在・未来',count:3,positions:['過去','現在','未来']},reignite:{label:'人生再点火の兆し',count:1,positions:['再点火の火種']}};
-let state={mode:'one',question:'',selected:[],pool:[]};
+let state={mode:'one',question:'',selected:[],pool:[],visual:null};
+const VISUAL_THEMES=[
+  {name:'moon',body:'theme-moon',effect:'fx-mist',filter:'tone-moon'},
+  {name:'blood',body:'theme-blood',effect:'fx-embers',filter:'tone-blood'},
+  {name:'emerald',body:'theme-emerald',effect:'fx-runes',filter:'tone-emerald'},
+  {name:'gold',body:'theme-gold',effect:'fx-stars',filter:'tone-gold'},
+  {name:'violet',body:'theme-violet',effect:'fx-arcane',filter:'tone-violet'}
+];
+const CARD_MOODS={
+  '15':'blood','16':'blood','13':'blood','18':'moon','17':'moon','02':'moon',
+  '01':'violet','10':'violet','20':'gold','19':'gold','21':'gold','14':'emerald','03':'emerald'
+};
+function chooseVisual(card){
+  const preferred=CARD_MOODS[String(card?.n).padStart(2,'0')];
+  const pool=preferred?VISUAL_THEMES.filter(v=>v.name===preferred).concat(VISUAL_THEMES):VISUAL_THEMES;
+  const visual=pool[Math.floor(Math.random()*pool.length)];
+  state.visual={...visual,glow:['glow-soft','glow-deep','glow-pulse'][Math.floor(Math.random()*3)],motion:['motion-float','motion-breathe','motion-still'][Math.floor(Math.random()*3)]};
+  applyVisual();
+}
+function applyVisual(){
+  document.body.classList.remove(...VISUAL_THEMES.map(v=>v.body),...VISUAL_THEMES.map(v=>v.effect));
+  if(!state.visual)return;
+  document.body.classList.add(state.visual.body,state.visual.effect);
+  spawnParticles(state.visual.name);
+}
+function spawnParticles(theme){
+  const host=document.querySelector('#particles'); if(!host)return;
+  host.innerHTML='';
+  const count=innerWidth<700?16:30;
+  for(let i=0;i<count;i++){
+    const p=document.createElement('i');
+    p.style.setProperty('--x',`${Math.random()*100}%`);
+    p.style.setProperty('--y',`${Math.random()*100}%`);
+    p.style.setProperty('--s',`${Math.random()*5+2}px`);
+    p.style.setProperty('--d',`${Math.random()*8+7}s`);
+    p.style.setProperty('--delay',`${-Math.random()*12}s`);
+    p.className=`particle particle-${theme}`;
+    host.appendChild(p);
+  }
+}
+
 const $=s=>document.querySelector(s);
 function go(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));scrollTo({top:0,behavior:'smooth'});} 
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
@@ -8,15 +48,15 @@ document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.
 $('#question-input').addEventListener('input',e=>$('#count').textContent=e.target.value.length);
 $('#begin-reading').onclick=()=>{state.question=$('#question-input').value.trim();prepareDeck();go('draw')};
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
-function prepareDeck(){state.selected=[];state.pool=shuffle(TAROT_CARDS);const deck=$('#deck');deck.innerHTML='';const shown=state.pool.slice(0,13);shown.forEach((card,i)=>{const btn=document.createElement('button');btn.className='deck-card';btn.style.setProperty('--rot',`${(i-6)*2.1}deg`);btn.style.setProperty('--lift',`${Math.abs(i-6)*2}px`);btn.setAttribute('aria-label',`${i+1}枚目のカード`);btn.innerHTML='<img src="images/card-back.svg" alt="カードの裏面">';btn.onclick=()=>pick(card,btn);deck.appendChild(btn)});$('#draw-help').textContent=modes[state.mode].count===1?'直感で一枚選びます':'直感で三枚選びます';updateStatus()}
+function prepareDeck(){state.selected=[];state.visual=null;document.body.classList.remove(...VISUAL_THEMES.map(v=>v.body),...VISUAL_THEMES.map(v=>v.effect));state.pool=shuffle(TAROT_CARDS);const deck=$('#deck');deck.innerHTML='';const shown=state.pool.slice(0,13);shown.forEach((card,i)=>{const btn=document.createElement('button');btn.className='deck-card';btn.style.setProperty('--rot',`${(i-6)*2.1}deg`);btn.style.setProperty('--lift',`${Math.abs(i-6)*2}px`);btn.setAttribute('aria-label',`${i+1}枚目のカード`);btn.innerHTML='<img src="images/card-back.svg" alt="カードの裏面">';btn.onclick=()=>pick(card,btn);deck.appendChild(btn)});$('#draw-help').textContent=modes[state.mode].count===1?'直感で一枚選びます':'直感で三枚選びます';updateStatus()}
 function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;state.selected.push({...card,reversed:Math.random()<.35});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}
 function updateStatus(){const n=modes[state.mode].count;$('#selection-status').textContent=`${state.selected.length} / ${n} 枚を選択`}
-function reveal(){const wrap=$('#revealed-cards');wrap.innerHTML='';state.selected.forEach((c,i)=>{const el=document.createElement('div');el.className='flip-card';el.innerHTML=`<div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;wrap.appendChild(el);setTimeout(()=>el.classList.add('open'),220+i*420)});go('reveal')}
+function reveal(){chooseVisual(state.selected[0]);const wrap=$('#revealed-cards');wrap.innerHTML='';state.selected.forEach((c,i)=>{const el=document.createElement('div');el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter}`;el.style.setProperty('--delay',`${i*.55}s`);el.innerHTML=`<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;wrap.appendChild(el);setTimeout(()=>{el.classList.add('open');document.body.classList.add('reveal-flash');setTimeout(()=>document.body.classList.remove('reveal-flash'),850)},220+i*420)});go('reveal')}
 $('#show-result').onclick=()=>{renderResult();go('result')};
 function orientation(c){return c.reversed?'逆位置':'正位置'}
 function key(c){return c.reversed?c.reverse:c.upright}
 function mainMessage(c){return c.reversed?c.shadow:c.message}
-function renderResult(){const q=$('#question-echo');q.textContent=state.question?`「${state.question}」`:'心に浮かべた問いに対して';const body=$('#result-body');if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="result-hero"><img class="${c.reversed?'reversed':''}" src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"><div class="result-copy"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div><div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${c.action}</p></div>`}else{body.innerHTML=`<div class="three-results">${state.selected.map((c,i)=>`<article class="mini-result"><img class="${c.reversed?'reversed':''}" src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"><h3>${modes[state.mode].positions[i]}：${c.jp}</h3><p>${orientation(c)}｜${key(c)}</p><p>${mainMessage(c)}</p></article>`).join('')}</div><div class="reading-block"><h4>三枚をつなぐ物語</h4><p>${threeStory()}</p></div><div class="reading-block"><h4>次の一歩</h4><p>${state.selected[1].action}</p></div>`}}
+function renderResult(){const q=$('#question-echo');q.textContent=state.question?`「${state.question}」`:'心に浮かべた問いに対して';const body=$('#result-body');if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="result-hero"><div class="result-card-frame ${state.visual?.glow||''} ${state.visual?.motion||''} ${state.visual?.filter||''}"><div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div><div class="result-copy"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div><div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${c.action}</p></div>`}else{body.innerHTML=`<div class="three-results">${state.selected.map((c,i)=>`<article class="mini-result"><div class="result-card-frame ${state.visual?.glow||''} ${state.visual?.motion||''} ${state.visual?.filter||''}"><div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div><h3>${modes[state.mode].positions[i]}：${c.jp}</h3><p>${orientation(c)}｜${key(c)}</p><p>${mainMessage(c)}</p></article>`).join('')}</div><div class="reading-block"><h4>三枚をつなぐ物語</h4><p>${threeStory()}</p></div><div class="reading-block"><h4>次の一歩</h4><p>${state.selected[1].action}</p></div>`}}
 function interpret(c){const prefix=state.mode==='reignite'?'再点火の鍵は、':state.mode==='answer'?'問いへの答えは、':state.mode==='one'?'今日の流れは、':'';return `${prefix}${mainMessage(c)} ${c.reversed?'急いで突破しようとせず、まず絡まっているものを見つけることが大切です。':'今は、カードが示す力を生活の中の小さな選択に移す時です。'}`}
 function threeStory(){const [a,b,c]=state.selected;return `過去には「${a.jp}」が示す${key(a)}の流れがありました。現在は「${b.jp}」の${key(b)}が中心にあります。この流れを受け止めることで、未来の「${c.jp}」が示す${key(c)}へ向かいます。未来は決定ではなく、今の選び方によって形を変える余地があります。`}
 $('#again').onclick=()=>{state.selected=[];go('modes')};
