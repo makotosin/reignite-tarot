@@ -14,7 +14,8 @@ const CARD_MOODS={
 };
 function chooseVisual(card){
   const preferred=CARD_MOODS[String(card?.n).padStart(2,'0')];
-  const pool=preferred?VISUAL_THEMES.filter(v=>v.name===preferred).concat(VISUAL_THEMES):VISUAL_THEMES;
+  let pool=preferred?VISUAL_THEMES.filter(v=>v.name===preferred).concat(VISUAL_THEMES):[...VISUAL_THEMES];
+  if(state.visual?.name&&pool.length>1)pool=pool.filter(v=>v.name!==state.visual.name);
   const visual=pool[Math.floor(Math.random()*pool.length)];
   state.visual={...visual,glow:['glow-soft','glow-deep','glow-pulse'][Math.floor(Math.random()*3)],motion:['motion-float','motion-sway','motion-breathe'][Math.floor(Math.random()*3)]};
   applyVisual();
@@ -23,12 +24,7 @@ function applyVisual(){
   document.body.classList.remove(...VISUAL_THEMES.map(v=>v.body),...VISUAL_THEMES.map(v=>v.effect));
   if(!state.visual)return;
   document.body.classList.add(state.visual.body,state.visual.effect);
-  document.body.dataset.mood=state.visual.name;
-  const indicator=document.querySelector('#mood-indicator');
-  if(indicator){
-    const names={moon:'月光',blood:'深紅',emerald:'翠緑',gold:'黄金',violet:'紫幻'};
-    indicator.textContent=`今回の気配：${names[state.visual.name]||state.visual.name}`;
-  }
+  document.documentElement.style.setProperty('--current-mood',`"${state.visual.name}"`);
   spawnParticles(state.visual.name);
 }
 function spawnParticles(theme){
@@ -55,7 +51,7 @@ $('#question-input').addEventListener('input',e=>$('#count').textContent=e.targe
 $('#begin-reading').onclick=()=>{state.question=$('#question-input').value.trim();prepareDeck();go('draw')};
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function prepareDeck(){state.selected=[];state.visual={...VISUAL_THEMES[Math.floor(Math.random()*VISUAL_THEMES.length)],glow:'glow-soft',motion:'motion-sway'};applyVisual();state.pool=shuffle(TAROT_CARDS);const deck=$('#deck');deck.innerHTML='';const shown=state.pool.slice(0,13);shown.forEach((card,i)=>{const btn=document.createElement('button');btn.className='deck-card';btn.style.setProperty('--rot',`${(i-6)*2.1}deg`);btn.style.setProperty('--lift',`${Math.abs(i-6)*2}px`);btn.setAttribute('aria-label',`${i+1}枚目のカード`);btn.innerHTML='<img src="images/card-back.svg" alt="カードの裏面">';btn.onclick=()=>pick(card,btn);deck.appendChild(btn)});$('#draw-help').textContent=modes[state.mode].count===1?'直感で一枚選びます':'直感で三枚選びます';updateStatus()}
-function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;state.selected.push({...card,reversed:Math.random()<.35});btn.classList.add('picked');document.body.classList.add('selection-pulse');setTimeout(()=>document.body.classList.remove('selection-pulse'),650);updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,650)}
+function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;state.selected.push({...card,reversed:Math.random()<.35});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}
 function updateStatus(){const n=modes[state.mode].count;$('#selection-status').textContent=`${state.selected.length} / ${n} 枚を選択`}
 function reveal(){chooseVisual(state.selected[0]);const wrap=$('#revealed-cards');wrap.innerHTML='';state.selected.forEach((c,i)=>{const el=document.createElement('div');el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter}`;el.style.setProperty('--delay',`${i*.55}s`);el.innerHTML=`<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;wrap.appendChild(el);setTimeout(()=>{el.classList.add('open','summoned');document.body.classList.add('reveal-flash','screen-rumble');setTimeout(()=>document.body.classList.remove('reveal-flash','screen-rumble'),1050)},220+i*520)});go('reveal')}
 $('#show-result').onclick=()=>{renderResult();go('result')};
