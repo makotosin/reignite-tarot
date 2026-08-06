@@ -164,3 +164,73 @@ body.screen-rumble .app-shell{animation:v3Rumble .42s ease-out}
 @media(prefers-reduced-motion:reduce){
   .atmosphere::before,.atmosphere::after,.revealed-cards::before,.flip-card.summoned,.flip-front::after,.result-card-frame::after{animation:none!important}
 }
+
+
+/* =========================================================
+   Effects v4.0 — card-specific cinematic effects
+   ========================================================= */
+:root{--fx-intensity:1}
+.revealed-cards{isolation:isolate}
+.flip-card{--fx-color:var(--accent);--fx-rgb:var(--accent-rgb)}
+.card-special-fx{position:absolute;inset:-32%;pointer-events:none;z-index:-1;border-radius:50%;opacity:0;filter:blur(2px)}
+.flip-card.summoned .card-special-fx,.result-card-frame .card-special-fx{opacity:1}
+
+/* Moon / priestess: cold halo and drifting moon mist */
+.fx-card-moon .card-special-fx{
+  background:radial-gradient(circle at 50% 42%,rgba(220,235,255,.42) 0 9%,rgba(106,139,218,.22) 10% 24%,transparent 56%);
+  box-shadow:0 0 70px rgba(122,158,255,.35);animation:v4MoonHalo 5.5s ease-in-out infinite
+}
+.fx-card-moon::before{content:"";position:absolute;inset:-12% -28%;z-index:3;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(210,225,255,.18),transparent);filter:blur(14px);animation:v4MoonMist 7s linear infinite}
+@keyframes v4MoonHalo{50%{transform:scale(1.14);filter:brightness(1.35) blur(3px)}}
+@keyframes v4MoonMist{from{transform:translateX(-50%)}to{transform:translateX(50%)}}
+
+/* Devil / Death: breathing crimson aura and embers */
+.fx-card-blood .card-special-fx{
+  background:radial-gradient(circle,rgba(255,65,48,.30),rgba(120,0,0,.16) 38%,transparent 68%);
+  box-shadow:0 0 90px rgba(255,35,25,.42);animation:v4BloodPulse 2.15s ease-in-out infinite
+}
+.fx-card-blood .card-aura{background:radial-gradient(circle,rgba(255,60,40,.34),transparent 66%)!important}
+@keyframes v4BloodPulse{0%,100%{transform:scale(.88);opacity:.42}50%{transform:scale(1.14);opacity:1}}
+
+/* Tower: real lightning strokes and hard flash */
+.fx-card-tower .card-special-fx{inset:-44%;background:conic-gradient(from 10deg,transparent 0 42%,rgba(225,240,255,.9) 43% 44%,transparent 45% 68%,rgba(180,210,255,.72) 69% 70%,transparent 71%);filter:drop-shadow(0 0 14px #d9e9ff);animation:v4Lightning 4.8s steps(1,end) infinite}
+.fx-card-tower::after{content:"";position:absolute;inset:-18%;pointer-events:none;z-index:4;background:linear-gradient(112deg,transparent 46%,rgba(255,255,255,.96) 48% 49%,transparent 51%);opacity:0;animation:v4Bolt 4.8s steps(1,end) infinite}
+@keyframes v4Lightning{0%,72%,76%,100%{opacity:0}73%,75%{opacity:1;transform:rotate(3deg)}74%{opacity:.35;transform:rotate(-2deg)}}
+@keyframes v4Bolt{0%,72%,74%,76%,100%{opacity:0}73%,75%{opacity:1}}
+
+/* Star / Sun / World: richer stellar particles */
+.fx-card-stars .card-special-fx{background:radial-gradient(circle,rgba(255,243,184,.38),transparent 55%);box-shadow:0 0 100px rgba(255,221,112,.32);animation:v4StarBloom 4.2s ease-in-out infinite}
+.fx-card-stars .card-special-fx::before,.fx-card-stars .card-special-fx::after{content:"✦  ·  ✧  ·  ✦";position:absolute;left:50%;top:50%;font-size:28px;letter-spacing:22px;color:#fff3bd;text-shadow:0 0 14px #fff,0 0 26px var(--accent);white-space:nowrap;animation:v4Orbit 13s linear infinite}
+.fx-card-stars .card-special-fx::after{font-size:17px;letter-spacing:34px;animation-duration:19s;animation-direction:reverse;opacity:.65}
+@keyframes v4StarBloom{50%{transform:scale(1.12);filter:brightness(1.25)}}
+@keyframes v4Orbit{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* Magician / Wheel: rotating arcane geometry */
+.fx-card-arcane .card-special-fx{border:1px solid rgba(var(--fx-rgb),.55);box-shadow:0 0 0 24px rgba(var(--fx-rgb),.06),0 0 0 48px rgba(var(--fx-rgb),.035),0 0 55px rgba(var(--fx-rgb),.32);background:repeating-conic-gradient(from 0deg,rgba(var(--fx-rgb),.4) 0 1deg,transparent 1deg 20deg);mask:radial-gradient(circle,transparent 0 42%,#000 43% 66%,transparent 67%);animation:v4Arcane 18s linear infinite}
+@keyframes v4Arcane{to{transform:rotate(360deg)}}
+
+/* Empress / Temperance: green-gold bloom */
+.fx-card-nature .card-special-fx{background:radial-gradient(ellipse,rgba(115,230,145,.26),rgba(218,188,92,.12) 42%,transparent 68%);box-shadow:0 0 82px rgba(100,220,140,.3);animation:v4Nature 6s ease-in-out infinite}
+@keyframes v4Nature{0%,100%{transform:scale(.92) rotate(-2deg)}50%{transform:scale(1.1) rotate(2deg)}}
+
+/* Strong foreground fog only while revealing/result */
+body.v4-reading .atmosphere::before{z-index:6;opacity:.58;height:245px;filter:blur(30px)}
+body.v4-reading .atmosphere::after{z-index:5;opacity:.38;height:190px}
+
+/* Cinematic dim before every reveal */
+body.v4-dim::before{content:"";position:fixed;inset:0;z-index:18;pointer-events:none;background:#020106;animation:v4Dim 1.25s ease both}
+@keyframes v4Dim{0%{opacity:0}35%{opacity:.82}100%{opacity:0}}
+
+/* More distinct card motion */
+.flip-card.summoned.motion-sway{animation:v3Summon .95s cubic-bezier(.16,.82,.2,1) both,v4Sway 6.5s ease-in-out 1.1s infinite}
+@keyframes v4Sway{0%,100%{transform:perspective(900px) rotateY(-1.2deg) rotateZ(-.5deg) translateY(0)}50%{transform:perspective(900px) rotateY(1.2deg) rotateZ(.5deg) translateY(-9px)}}
+
+/* Version indicator */
+.version-badge{color:#d9b66f;text-shadow:0 0 10px rgba(217,182,111,.55)}
+.version-badge::after{content:" • cinematic"!important}
+
+@media(max-width:720px){
+  body.v4-reading .atmosphere::before{height:150px;opacity:.42}
+  .fx-card-stars .card-special-fx::before,.fx-card-stars .card-special-fx::after{font-size:18px;letter-spacing:12px}
+}
+@media(prefers-reduced-motion:reduce){.card-special-fx,.fx-card-moon::before,.fx-card-tower::after{animation:none!important}}
