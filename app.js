@@ -58,11 +58,69 @@ function cardFxClass(card){
 function specialFxMarkup(){return '<div class="card-special-fx" aria-hidden="true"></div>'}
 
 const $=s=>document.querySelector(s);
+const DAILY_READING_KEY='reigniteTarotDailyReadingV1';
+function localDayKey(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function getDailyReadingState(){
+  const today=localDayKey();
+  try{
+    const saved=JSON.parse(localStorage.getItem(DAILY_READING_KEY)||'{}');
+    if(saved.date!==today)return {date:today,count:0};
+    return {date:today,count:Number(saved.count)||0};
+  }catch(_){return {date:today,count:0}}
+}
+function setDailyReadingCount(count){
+  try{localStorage.setItem(DAILY_READING_KEY,JSON.stringify({date:localDayKey(),count}))}catch(_){}
+}
+function registerReadingAttempt(){
+  const daily=getDailyReadingState();
+  const next=daily.count+1;
+  setDailyReadingCount(next);
+  return next;
+}
+function startActualReading(){
+  state.question=$('#question-input').value.trim();
+  prepareDeck();
+  go('draw');
+}
+function handleDailyReadingGate(){
+  const daily=getDailyReadingState();
+  if(daily.count===0){
+    registerReadingAttempt();
+    startActualReading();
+    return;
+  }
+  if(daily.count===1){
+    state.question=$('#question-input').value.trim();
+    document.body.classList.add('daily-omen');
+    go('daily-warning');
+    return;
+  }
+  if(daily.count===2){
+    registerReadingAttempt();
+    document.body.classList.add('daily-omen','daily-silence');
+    go('daily-silence');
+    return;
+  }
+  document.body.classList.add('daily-omen','daily-closed');
+  go('daily-closed');
+}
 function go(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));scrollTo({top:0,behavior:'smooth'});} 
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;$('#mode-label').textContent=modes[state.mode].label.toUpperCase();go('question')});
 $('#question-input').addEventListener('input',e=>$('#count').textContent=e.target.value.length);
-$('#begin-reading').onclick=()=>{state.question=$('#question-input').value.trim();prepareDeck();go('draw')};
+$('#begin-reading').onclick=handleDailyReadingGate;
+$('#warning-continue').onclick=()=>{
+  registerReadingAttempt();
+  document.body.classList.remove('daily-omen');
+  startActualReading();
+};
+$('#warning-stop').onclick=()=>{
+  document.body.classList.remove('daily-omen');
+  go('home');
+};
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function prepareDeck(){state.selected=[];state.visual={...VISUAL_THEMES[Math.floor(Math.random()*VISUAL_THEMES.length)],glow:'glow-soft',motion:'motion-sway'};applyVisual();state.pool=shuffle(TAROT_CARDS);const deck=$('#deck');deck.innerHTML='';const shown=state.pool.slice(0,13);shown.forEach((card,i)=>{const btn=document.createElement('button');btn.className='deck-card';btn.style.setProperty('--rot',`${(i-6)*2.1}deg`);btn.style.setProperty('--lift',`${Math.abs(i-6)*2}px`);btn.setAttribute('aria-label',`${i+1}枚目のカード`);btn.innerHTML='<img src="images/card-back.svg" alt="カードの裏面">';btn.onclick=()=>pick(card,btn);deck.appendChild(btn)});$('#draw-help').textContent=modes[state.mode].count===1?'直感で一枚選びます':'直感で三枚選びます';updateStatus()}
 function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;state.selected.push({...card,reversed:Math.random()<.35});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}

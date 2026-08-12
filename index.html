@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5.0" />
+  <link rel="stylesheet" href="style.css?v=5.1" />
 </head>
 <body>
   <canvas id="stars" aria-hidden="true"></canvas>
@@ -52,6 +52,35 @@
       <button class="primary" id="begin-reading">カードを並べる</button>
     </section>
 
+    <section id="daily-warning" class="screen omen-screen" aria-labelledby="daily-warning-title">
+      <p class="eyebrow">A SECOND QUESTION</p>
+      <div class="omen-sigil" aria-hidden="true">☾</div>
+      <h2 id="daily-warning-title">今日は、すでに一度カードに問いかけています</h2>
+      <p class="lead compact">同じ日に何度も答えを求めると、最初に受け取った兆しを見失うことがあります。</p>
+      <p class="omen-copy">それでも、もう一度だけ問いかけますか？</p>
+      <div class="actions omen-actions">
+        <button class="primary danger-soft" id="warning-continue">それでも占う</button>
+        <button class="secondary" id="warning-stop">今日はやめる</button>
+      </div>
+    </section>
+
+    <section id="daily-silence" class="screen omen-screen silence-screen" aria-labelledby="daily-silence-title">
+      <p class="eyebrow">THE CARDS REMAIN SILENT</p>
+      <div class="silent-card" aria-hidden="true"><img src="images/card-back.svg" alt=""></div>
+      <h2 id="daily-silence-title">カードは、今日はもう答えません</h2>
+      <p class="omen-copy strong">これ以上、同じ日に答えを求めてはいけません。</p>
+      <p class="lead compact">今日のカードは沈黙を選びました。最初に受け取った言葉を、しばらくそのまま置いてみてください。</p>
+      <button class="secondary" data-go="home">入口へ戻る</button>
+    </section>
+
+    <section id="daily-closed" class="screen omen-screen closed-screen" aria-labelledby="daily-closed-title">
+      <p class="eyebrow">THE GATE IS CLOSED</p>
+      <div class="omen-sigil closed" aria-hidden="true">✦</div>
+      <h2 id="daily-closed-title">今日はもう、カードは答えません</h2>
+      <p class="lead compact">また日付が変わってから、静かな気持ちで訪れてください。</p>
+      <button class="secondary" data-go="home">入口へ戻る</button>
+    </section>
+
     <section id="draw" class="screen" aria-labelledby="draw-title">
       <p class="eyebrow">LISTEN TO YOUR INTUITION</p>
       <h2 id="draw-title">惹かれるカードを選んでください</h2>
@@ -80,8 +109,8 @@
     </section>
   </main>
 
-  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.0</span></footer>
-  <script src="data/cards.js?v=5.0"></script>
-  <script src="app.js?v=5.0"></script>
+  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.1</span></footer>
+  <script src="data/cards.js?v=5.1"></script>
+  <script src="app.js?v=5.1"></script>
 </body>
 </html>
