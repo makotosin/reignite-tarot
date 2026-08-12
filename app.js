@@ -59,6 +59,8 @@ function specialFxMarkup(){return '<div class="card-special-fx" aria-hidden="tru
 
 const $=s=>document.querySelector(s);
 const DAILY_READING_KEY='reigniteTarotDailyReadingV1';
+const TEST_MODE=new URLSearchParams(location.search).get('test')==='1';
+
 function localDayKey(){
   const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -86,6 +88,10 @@ function startActualReading(){
   go('draw');
 }
 function handleDailyReadingGate(){
+  if(TEST_MODE){
+    startActualReading();
+    return;
+  }
   const daily=getDailyReadingState();
   if(daily.count===0){
     registerReadingAttempt();
