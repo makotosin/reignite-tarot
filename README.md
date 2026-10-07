@@ -109,25 +109,38 @@
     </section>
   </main>
 
-  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.4.0</span></footer>
+  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.4.1</span></footer>
   <script src="data/cards.js?v=5.3.5"></script>
   <script src="app.js?v=5.3.5"></script>
 </body>
 </html>
 
 
-## v5.4.0
+## v5.4.1
 1枚引きの「カードを受け取って」画面に専用クリック/タップ領域を追加。
 
 
-## v5.4.0
+## v5.4.1
 - 1枚引きの受け取り演出を3枚引きと同じ処理に統一。
 - reveal画面で裏面から自動回転して表面を表示。
-- 画面フッターのバージョンを Effects v5.4.0 に更新。
+- 画面フッターのバージョンを Effects v5.4.1 に更新。
 
 
-## v5.4.0 audit
+## v5.4.1 audit
 - 1枚引きの状態遷移を再構成: 選択 → 裏面回転 → 自動受取待ち → カードクリック → 開示 → 結果。
 - 過去の1枚引きクリック対策CSSを削除し、単一の button 要素に統一。
-- style.css のキャッシュバスターが v5.1 のままだった不整合を v5.4.0 に修正。
-- app.js / cards.js / style.css のバージョンを v5.4.0 に統一。
+- style.css のキャッシュバスターが v5.1 のままだった不整合を v5.4.1 に修正。
+- app.js / cards.js / style.css のバージョンを v5.4.1 に統一。
+
+
+## v5.4.1 reveal-flow correction
+- 3-card reading: restored v5.3 automatic sequential opening; no card clicks required.
+- 1-card reading: back spin -> automatic receive-ready frame -> one card click -> open -> result button.
+- Result button is enabled only after the intended reveal sequence completes.
+
+## v5.4.2
+Finalized reveal flow:
+- 3 cards: selection complete -> three cards rotate/open automatically in sequence -> 「言葉を受け取る」 appears -> button click -> result.
+- 1 card: selection complete -> one card rotates/opens automatically -> 「言葉を受け取る」 appears -> button click -> result.
+- No card click is used on the reveal screen.
+- Cache-busting references for CSS and JS are both v5.4.2.

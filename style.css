@@ -466,38 +466,19 @@ body.daily-closed{background:#050509}
 
 
 /* =========================================================
-   Effects v5.4.0 — unified reveal ritual
-   SAME flow for 1-card and 3-card readings:
-   select -> back spin -> automatic ready frame -> click/tap -> flip open
+   Effects v5.4.1 — unified reveal ritual
+   reveal ritual
+   3-card: automatic sequential reveal
+   1-card: back spin -> automatic ready frame -> click/tap -> flip open
    ========================================================= */
 #show-result[hidden]{display:none!important}
 #show-result.result-ready{animation:v540ResultReady .45s ease-out both}
 @keyframes v540ResultReady{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-button.flip-card.ritual-card{
-  display:block;position:relative;padding:0;border:0;background:transparent;
-  color:inherit;font:inherit;appearance:none;-webkit-appearance:none;
-  touch-action:manipulation;opacity:1;
-}
-button.flip-card.ritual-card:disabled{opacity:1}
-button.flip-card.ritual-card .card-special-fx,
-button.flip-card.ritual-card .card-aura,
-button.flip-card.ritual-card .flip-inner,
-button.flip-card.ritual-card .flip-face,
-button.flip-card.ritual-card img,
-button.flip-card.ritual-card .card-caption{pointer-events:none}
-button.flip-card.ritual-card.back-spin .flip-inner{
-  animation:v540BackSpin .9s cubic-bezier(.2,.72,.22,1) both!important;
-}
-button.flip-card.ritual-card.ready-to-receive{
-  cursor:pointer;filter:drop-shadow(0 0 18px rgba(217,182,111,.5));
-}
-button.flip-card.ritual-card.ready-to-receive::after{
-  content:"";position:absolute;inset:-7px;border:1px solid rgba(231,198,123,.78);
-  border-radius:17px;box-shadow:0 0 20px rgba(217,182,111,.3);
-  pointer-events:none;animation:v540ReadyPulse 1.8s ease-in-out infinite;
-}
-button.flip-card.ritual-card.ready-to-receive:focus-visible{outline:2px solid var(--gold);outline-offset:9px}
-@keyframes v540BackSpin{0%{transform:rotateY(0deg) scale(.96)}48%{transform:rotateY(180deg) scale(1.045)}100%{transform:rotateY(360deg) scale(1)}}
-@keyframes v540ReadyPulse{50%{opacity:.48;box-shadow:0 0 36px rgba(217,182,111,.48)}}
-@media(prefers-reduced-motion:reduce){button.flip-card.ritual-card.back-spin .flip-inner{animation-duration:.15s!important}}
+div.flip-card.ritual-card{cursor:default}
+div.flip-card.ritual-card .card-special-fx,
+div.flip-card.ritual-card .card-aura,
+div.flip-card.ritual-card .flip-inner,
+div.flip-card.ritual-card .flip-face,
+div.flip-card.ritual-card img,
+div.flip-card.ritual-card .card-caption{pointer-events:none}
