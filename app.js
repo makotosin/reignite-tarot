@@ -180,10 +180,30 @@ function reveal(){
     },220+i*520);
   });
 }
-$('#show-result').onclick=()=>{renderResult();go('result')};
+$('#show-result').onclick=()=>{
+  try{
+    renderResult();
+    go('result');
+  }catch(err){
+    console.error('Result render failed:',err);
+    alert('結果の表示中にエラーが発生しました。ページを再読み込みして、もう一度お試しください。');
+  }
+};
 function orientation(c){return c.reversed?'逆位置':'正位置'}
 function key(c){return c.reversed?c.reverse:c.upright}
 function mainMessage(c){return c.reversed?c.shadow:c.message}
+function interpret(c){
+  const meaning=key(c);
+  const message=mainMessage(c);
+  const position=modes[state.mode]?.positions?.[0]||'今回の兆し';
+  if(state.mode==='answer'){
+    return `${position}として「${c.jp}」が示すのは、${meaning}です。${message} 焦って結論を固定せず、今できる選択を一つずつ確かめてみてください。`;
+  }
+  if(state.mode==='reignite'){
+    return `${position}として現れた「${c.jp}」は、${meaning}を示しています。${message} 小さくても心が動く方向を、今日の再出発の手がかりにしてみてください。`;
+  }
+  return `${position}として現れた「${c.jp}」は、${meaning}を示しています。${message} 今日一日の出来事を、このカードの示す視点から静かに眺めてみてください。`;
+}
 let resultCarouselTimer=null;
 function cardImagePath(c){return `images/${String(c.n).padStart(2,'0')}-${c.slug}.png`}
 function cardArt(c,extra=''){return `<div class="result-card-frame ${extra} ${state.visual?.glow||''} ${state.visual?.filter||''} ${cardFxClass(c)}">${specialFxMarkup()}<div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}" loading="eager"></div>`}

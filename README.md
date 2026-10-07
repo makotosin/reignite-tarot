@@ -144,3 +144,9 @@ Finalized reveal flow:
 - 1 card: selection complete -> one card rotates/opens automatically -> 「言葉を受け取る」 appears -> button click -> result.
 - No card click is used on the reveal screen.
 - Cache-busting references for CSS and JS are both v5.4.2.
+
+## v5.4.3
+- Fixed the one-card result transition.
+- Root cause: renderResult() called interpret(c), but interpret() was undefined, causing a ReferenceError before the result screen transition.
+- Added deterministic one-card interpretation for one/answer/reignite modes.
+- Added guarded result rendering and synchronized cache/version markers to v5.4.3.
