@@ -138,71 +138,94 @@ function reveal(){
 
   const wrap=$('#revealed-cards');
   const resultBtn=$('#show-result');
-  const isSingle=state.selected.length===1;
   wrap.innerHTML='';
-
-  // v5.3.7: reveal flow is explicit and state-based.
-  // One card: select -> back spin -> automatically ready -> click card -> flip open -> result button.
-  // Three cards: keep the established automatic sequential reveal.
   if(resultBtn){
-    resultBtn.hidden=isSingle;
-    resultBtn.disabled=isSingle;
+    resultBtn.hidden=true;
+    resultBtn.disabled=true;
+    resultBtn.classList.remove('result-ready');
   }
 
+  // v5.4.0: one shared ritual for BOTH one-card and three-card readings.
+  // selected -> back spin -> automatic READY frame -> click/tap card -> flip open
+  // -> when every selected card is open, enable the reading button.
+  const ritualCards=[];
+  let openedCount=0;
+
+  const finishAll=()=>{
+    if(openedCount!==ritualCards.length || !resultBtn)return;
+    resultBtn.hidden=false;
+    resultBtn.disabled=false;
+    resultBtn.classList.add('result-ready');
+  };
+
+  const openCard=item=>{
+    if(item.phase!=='ready')return;
+    item.phase='open';
+    const el=item.el;
+    el.classList.remove('ready-to-receive','back-spin');
+    el.classList.add('open','summoned');
+    el.disabled=true;
+    el.setAttribute('aria-label','開かれたカード');
+    openedCount+=1;
+    document.body.classList.add('reveal-flash','screen-rumble');
+    setTimeout(()=>document.body.classList.remove('reveal-flash','screen-rumble'),1050);
+    setTimeout(finishAll,760);
+  };
+
   state.selected.forEach((c,i)=>{
-    const el=document.createElement(isSingle?'button':'div');
-    if(isSingle){
-      el.type='button';
-      el.disabled=true;
-      el.setAttribute('aria-label','カードの回転を待っています');
-    }
-    el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}${isSingle?' one-card-ritual':''}`;
-    el.style.setProperty('--delay',`${i*.55}s`);
+    const el=document.createElement('button');
+    el.type='button';
+    el.disabled=true;
+    el.setAttribute('aria-label','カードの回転を待っています');
+    el.className=`flip-card ritual-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}`;
+    el.style.setProperty('--delay',`${i*.18}s`);
     el.innerHTML=`${specialFxMarkup()}<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;
     wrap.appendChild(el);
-
-    let phase=isSingle?'spinning':'waiting';
-    const openCard=()=>{
-      if(phase==='open')return;
-      phase='open';
-      el.classList.remove('ready-to-receive','back-spin');
-      el.classList.add('open','summoned');
-      if(isSingle){
-        el.disabled=true;
-        el.setAttribute('aria-label','開かれたカード');
-      }
-      document.body.classList.add('reveal-flash','screen-rumble');
-      setTimeout(()=>document.body.classList.remove('reveal-flash','screen-rumble'),1050);
-      if(isSingle && resultBtn){
-        // Wait until the visual flip is underway before offering the reading.
-        setTimeout(()=>{
-          resultBtn.hidden=false;
-          resultBtn.disabled=false;
-          resultBtn.classList.add('result-ready');
-        },760);
-      }
-    };
-
-    if(isSingle){
-      // The card spins while still showing its back. No user action is required here.
-      setTimeout(()=>{
-        el.classList.add('back-spin');
-        setTimeout(()=>{
-          el.classList.remove('back-spin');
-          phase='ready';
-          el.disabled=false;
-          el.classList.add('ready-to-receive');
-          el.setAttribute('aria-label','カードを受け取って開く');
-        },900);
-      },220);
-      el.addEventListener('click',()=>{
-        if(phase==='ready')openCard();
-      });
-    }else{
-      setTimeout(openCard,220+i*520);
-    }
+    const item={el,phase:'spinning'};
+    ritualCards.push(item);
+    el.addEventListener('click',()=>openCard(item));
   });
+
+  // Enter the reveal screen first, then start the same animation for every card.
   go('reveal');
+
+  let readyCount=0;
+  const markReady=item=>{
+    if(item.phase!=='spinning')return;
+    item.phase='ready';
+    item.el.classList.remove('back-spin');
+    item.el.disabled=false;
+    item.el.classList.add('ready-to-receive');
+    item.el.setAttribute('aria-label','カードを受け取って開く');
+    readyCount+=1;
+  };
+
+  ritualCards.forEach((item,i)=>{
+    const el=item.el;
+    const delay=220+i*160;
+    setTimeout(()=>{
+      if(item.phase!=='spinning')return;
+      el.classList.add('back-spin');
+      let done=false;
+      const complete=()=>{
+        if(done)return;
+        done=true;
+        markReady(item);
+      };
+      const onEnd=e=>{
+        if(e.animationName==='v540BackSpin'){
+          el.removeEventListener('animationend',onEnd);
+          complete();
+        }
+      };
+      el.addEventListener('animationend',onEnd);
+      // Fallback for browsers/reduced-motion: READY must appear automatically.
+      setTimeout(()=>{
+        el.removeEventListener('animationend',onEnd);
+        complete();
+      },1050);
+    },delay);
+  });
 }
 $('#show-result').onclick=()=>{renderResult();go('result')};
 function orientation(c){return c.reversed?'逆位置':'正位置'}
