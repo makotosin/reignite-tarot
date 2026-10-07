@@ -109,12 +109,18 @@
     </section>
   </main>
 
-  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.3</span></footer>
-  <script src="data/cards.js?v=5.3"></script>
-  <script src="app.js?v=5.3"></script>
+  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.3.6</span></footer>
+  <script src="data/cards.js?v=5.3.5"></script>
+  <script src="app.js?v=5.3.5"></script>
 </body>
 </html>
 
 
-## v5.3.4
+## v5.3.6
 1枚引きの「カードを受け取って」画面に専用クリック/タップ領域を追加。
+
+
+## v5.3.6
+- 1枚引きの受け取り演出を3枚引きと同じ処理に統一。
+- reveal画面で裏面から自動回転して表面を表示。
+- 画面フッターのバージョンを Effects v5.3.6 に更新。

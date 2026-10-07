@@ -136,11 +136,20 @@ function reveal(){
   document.body.classList.add('v4-reading','v4-dim');
   setTimeout(()=>document.body.classList.remove('v4-dim'),1300);
   const wrap=$('#revealed-cards');
+  const resultBtn=$('#show-result');
   wrap.innerHTML='';
   const isSingle=state.selected.length===1;
+
+  // v5.3.6: 1枚引きは「選択 → 裏面のまま回転 → 受け取り待ち → クリックで開示」。
+  // 3枚引きの既存動作は変更しない。
+  if(resultBtn){
+    resultBtn.hidden=isSingle;
+    resultBtn.disabled=isSingle;
+  }
+
   state.selected.forEach((c,i)=>{
     const el=document.createElement('div');
-    el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}`;
+    el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}${isSingle?' single-reveal-v536':''}`;
     el.style.setProperty('--delay',`${i*.55}s`);
     el.innerHTML=`${specialFxMarkup()}<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;
     wrap.appendChild(el);
@@ -148,21 +157,38 @@ function reveal(){
     const openCard=()=>{
       if(el.classList.contains('open'))return;
       el.classList.add('open','summoned');
+      el.classList.remove('ready-to-receive');
+      el.removeAttribute('role');
+      el.removeAttribute('tabindex');
+      el.removeAttribute('aria-label');
       document.body.classList.add('reveal-flash','screen-rumble');
       setTimeout(()=>document.body.classList.remove('reveal-flash','screen-rumble'),1050);
+      if(isSingle && resultBtn){
+        resultBtn.hidden=false;
+        resultBtn.disabled=false;
+      }
     };
 
     if(isSingle){
-      // 1枚引きは「受け取る」操作として、裏向きカードを本人のクリック/タップで開く。
-      el.classList.add('single-reveal-clickable');
-      const hit=document.createElement('button');
-      hit.type='button';
-      hit.className='single-reveal-hitarea';
-      hit.setAttribute('aria-label','カードを受け取って開く');
-      hit.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openCard()});
-      el.appendChild(hit);
+      // まず裏面のまま一回転。回転完了後にだけ受け取り操作を有効にする。
+      el.setAttribute('aria-label','カードを受け取る');
+      setTimeout(()=>{
+        el.classList.add('back-spin');
+        setTimeout(()=>{
+          el.classList.remove('back-spin');
+          el.classList.add('ready-to-receive');
+          el.setAttribute('role','button');
+          el.setAttribute('tabindex','0');
+          el.addEventListener('click',openCard,{once:true});
+          el.addEventListener('keydown',e=>{
+            if((e.key==='Enter'||e.key===' ')&&!el.classList.contains('open')){
+              e.preventDefault();
+              openCard();
+            }
+          });
+        },950);
+      },220);
     }else{
-      // 3枚引きの既存挙動は変更しない。
       setTimeout(openCard,220+i*520);
     }
   });
