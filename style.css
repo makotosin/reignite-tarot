@@ -463,3 +463,7 @@ body.daily-closed{background:#050509}
 @media(max-width:720px){.art-button{width:min(430px,94vw)}.art-button .result-card-frame>img{max-height:74vh}.single-summary,.carousel-reading{padding:18px 16px}.three-carousel{padding:0 28px 30px;min-height:72vh}.carousel-stage{height:68vh}.carousel-card{width:min(390px,82vw)}.carousel-card .result-card-frame>img{max-height:64vh}.carousel-card.prev{transform:translate(-118%,-50%) scale(.55);opacity:.18}.carousel-card.next{transform:translate(18%,-50%) scale(.55);opacity:.18}.carousel-nav{width:38px;height:54px;font-size:1.8rem}.carousel-prev{left:0}.carousel-next{right:0}}
 @media(prefers-reduced-motion:reduce){.carousel-card{transition-duration:.15s}}
 .version-badge::after{content:" • artwork-first"!important}
+
+/* v5.3.1: ensure the single-card artwork itself always receives clicks */
+.v53-single .art-button{position:relative;z-index:8;pointer-events:auto;touch-action:manipulation}
+.v53-single .art-button .result-card-frame,.v53-single .art-button .result-card-frame>img{pointer-events:none}

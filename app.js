@@ -145,7 +145,13 @@ function openCardLightbox(c){
   box.querySelector('.lightbox-stage').innerHTML=`<img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}">`;
   box.classList.add('show');
 }
-function setupResultArtClicks(){document.querySelectorAll('[data-card-index]').forEach(el=>el.onclick=()=>openCardLightbox(state.selected[Number(el.dataset.cardIndex)]))}
+function setupResultArtClicks(){
+  const btn=document.querySelector('.v53-single .art-button');
+  if(!btn)return;
+  const open=e=>{e.preventDefault();e.stopPropagation();openCardLightbox(state.selected[0])};
+  btn.addEventListener('click',open,{capture:true});
+  btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){open(e)}});
+}
 function setupThreeCarousel(){
   if(resultCarouselTimer)clearInterval(resultCarouselTimer);
   const stage=document.querySelector('.three-carousel'); if(!stage)return;
@@ -158,7 +164,7 @@ function setupThreeCarousel(){
 function renderResult(){
   if(resultCarouselTimer){clearInterval(resultCarouselTimer);resultCarouselTimer=null}
   const q=$('#question-echo');q.textContent=state.question?`「${state.question}」`:'心に浮かべた問いに対して';const body=$('#result-body');
-  if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="v53-single"><button class="art-button" data-card-index="0" aria-label="カードを拡大表示">${cardArt(c,'result-art-large')}</button><div class="single-summary"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div><div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${c.action}</p></div>`;setupResultArtClicks()}
+  if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="v53-single"><button type="button" class="art-button" data-card-index="0" aria-label="カードを拡大表示">${cardArt(c,'result-art-large')}</button><div class="single-summary"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div><div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${c.action}</p></div>`;setupResultArtClicks()}
   else{body.innerHTML=`<div class="three-carousel" aria-label="過去・現在・未来のカード"><button class="carousel-nav carousel-prev" aria-label="前のカード">‹</button><div class="carousel-stage">${state.selected.map((c,i)=>`<button class="carousel-card" data-index="${i}" aria-label="${modes[state.mode].positions[i]} ${c.jp}">${cardArt(c,'carousel-art')}<span>${modes[state.mode].positions[i]}</span></button>`).join('')}</div><button class="carousel-nav carousel-next" aria-label="次のカード">›</button><div class="carousel-dots">${state.selected.map((_,i)=>`<button class="carousel-dot" aria-label="${i+1}枚目"></button>`).join('')}</div></div><div class="carousel-reading"></div><div class="reading-block"><h4>三枚をつなぐ物語</h4><p>${threeStory()}</p></div><div class="reading-block"><h4>次の一歩</h4><p>${state.selected[1].action}</p></div>`;setupThreeCarousel()}
 }
 function threeStory(){const [a,b,c]=state.selected;return `過去には「${a.jp}」が示す${key(a)}の流れがありました。現在は「${b.jp}」の${key(b)}が中心にあります。この流れを受け止めることで、未来の「${c.jp}」が示す${key(c)}へ向かいます。未来は決定ではなく、今の選び方によって形を変える余地があります。`}
