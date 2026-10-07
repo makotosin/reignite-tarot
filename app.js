@@ -131,7 +131,44 @@ function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function prepareDeck(){state.selected=[];state.visual={...VISUAL_THEMES[Math.floor(Math.random()*VISUAL_THEMES.length)],glow:'glow-soft',motion:'motion-sway'};applyVisual();state.pool=shuffle(TAROT_CARDS);const deck=$('#deck');deck.innerHTML='';const shown=state.pool.slice(0,13);shown.forEach((card,i)=>{const btn=document.createElement('button');btn.className='deck-card';btn.style.setProperty('--rot',`${(i-6)*2.1}deg`);btn.style.setProperty('--lift',`${Math.abs(i-6)*2}px`);btn.setAttribute('aria-label',`${i+1}枚目のカード`);btn.innerHTML='<img src="images/card-back.svg" alt="カードの裏面">';btn.onclick=()=>pick(card,btn);deck.appendChild(btn)});$('#draw-help').textContent=modes[state.mode].count===1?'直感で一枚選びます':'直感で三枚選びます';updateStatus()}
 function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;state.selected.push({...card,reversed:Math.random()<.35});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}
 function updateStatus(){const n=modes[state.mode].count;$('#selection-status').textContent=`${state.selected.length} / ${n} 枚を選択`}
-function reveal(){chooseVisual(state.selected[0]);document.body.classList.add('v4-reading','v4-dim');setTimeout(()=>document.body.classList.remove('v4-dim'),1300);const wrap=$('#revealed-cards');wrap.innerHTML='';state.selected.forEach((c,i)=>{const el=document.createElement('div');el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}`;el.style.setProperty('--delay',`${i*.55}s`);el.innerHTML=`${specialFxMarkup()}<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;wrap.appendChild(el);setTimeout(()=>{el.classList.add('open','summoned');document.body.classList.add('reveal-flash','screen-rumble');setTimeout(()=>document.body.classList.remove('reveal-flash','screen-rumble'),1050)},220+i*520)});go('reveal')}
+function reveal(){
+  chooseVisual(state.selected[0]);
+  document.body.classList.add('v4-reading','v4-dim');
+  setTimeout(()=>document.body.classList.remove('v4-dim'),1300);
+  const wrap=$('#revealed-cards');
+  wrap.innerHTML='';
+  const isSingle=state.selected.length===1;
+  state.selected.forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}`;
+    el.style.setProperty('--delay',`${i*.55}s`);
+    el.innerHTML=`${specialFxMarkup()}<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;
+    wrap.appendChild(el);
+
+    const openCard=()=>{
+      if(el.classList.contains('open'))return;
+      el.classList.add('open','summoned');
+      document.body.classList.add('reveal-flash','screen-rumble');
+      setTimeout(()=>document.body.classList.remove('reveal-flash','screen-rumble'),1050);
+    };
+
+    if(isSingle){
+      // 1枚引きは「受け取る」操作として、裏向きカードを本人のクリック/タップで開く。
+      el.classList.add('single-reveal-clickable');
+      el.setAttribute('role','button');
+      el.setAttribute('tabindex','0');
+      el.setAttribute('aria-label','カードを受け取って開く');
+      el.addEventListener('click',openCard);
+      el.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===' '){e.preventDefault();openCard()}
+      });
+    }else{
+      // 3枚引きの既存挙動は変更しない。
+      setTimeout(openCard,220+i*520);
+    }
+  });
+  go('reveal');
+}
 $('#show-result').onclick=()=>{renderResult();go('result')};
 function orientation(c){return c.reversed?'逆位置':'正位置'}
 function key(c){return c.reversed?c.reverse:c.upright}
