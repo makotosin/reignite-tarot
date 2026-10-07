@@ -1,4 +1,4 @@
-# Effects v5.2 — Daily Ritual + Test Mode
+# Effects v5.3 — カード大型表示 + 3枚カルーセル — Daily Ritual + Test Mode
 
 通常公開では v5.1 と同じ一日回数制限が働きます。
 

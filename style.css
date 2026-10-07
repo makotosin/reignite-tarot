@@ -431,3 +431,35 @@ body.daily-closed{background:#050509}
 @media(prefers-reduced-motion:reduce){.omen-sigil,.silent-card img,.silence-screen::after{animation:none!important}}
 
 .version-badge::after{content:" • daily ritual"!important}
+
+/* =========================================================
+   Effects v5.3 — artwork-first result layout
+   ========================================================= */
+.result-screen{max-width:980px}
+.v53-single{display:flex;flex-direction:column;align-items:center;gap:24px}
+.art-button,.carousel-card{border:0;background:transparent;color:inherit;padding:0;font:inherit;cursor:pointer}
+.art-button{width:min(510px,72vw)}
+.art-button .result-card-frame{width:100%}
+.art-button .result-card-frame>img{width:100%;max-height:72vh;object-fit:contain}
+.single-summary{width:min(820px,100%);text-align:center;background:rgba(15,12,31,.72);border:1px solid rgba(217,182,111,.22);padding:22px 28px;border-radius:18px}
+.single-summary h3,.carousel-reading h3{font-family:"Cormorant Garamond","Shippori Mincho",serif;color:var(--gold);font-size:clamp(2rem,5vw,3.1rem);margin:0 0 6px}
+.single-summary p,.carousel-reading p{line-height:1.9;color:#e2dae6}
+
+.three-carousel{position:relative;width:100%;margin:6px auto 22px;padding:8px 48px 34px;overflow:hidden;min-height:min(70vh,720px)}
+.carousel-stage{position:relative;height:min(66vh,670px);perspective:1400px}
+.carousel-card{position:absolute;left:50%;top:50%;width:min(430px,48vw);transform:translate(-50%,-50%) scale(.72);opacity:.34;filter:brightness(.58);transition:transform 1.25s cubic-bezier(.22,.75,.2,1),opacity 1.25s,filter 1.25s;z-index:1}
+.carousel-card .result-card-frame{width:100%}
+.carousel-card .result-card-frame>img{width:100%;max-height:61vh;object-fit:contain}
+.carousel-card span{display:block;margin-top:12px;color:var(--gold);font-size:1.05rem;letter-spacing:.12em}
+.carousel-card.active{transform:translate(-50%,-50%) scale(1);opacity:1;filter:none;z-index:4}
+.carousel-card.prev{transform:translate(-112%,-50%) scale(.66) rotateY(13deg);opacity:.28;z-index:2}
+.carousel-card.next{transform:translate(12%,-50%) scale(.66) rotateY(-13deg);opacity:.28;z-index:2}
+.carousel-nav{position:absolute;top:46%;z-index:8;width:46px;height:64px;border:1px solid rgba(217,182,111,.42);border-radius:999px;background:rgba(7,7,15,.62);color:var(--gold);font-size:2.3rem;line-height:1;cursor:pointer}
+.carousel-prev{left:2px}.carousel-next{right:2px}
+.carousel-dots{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:8}
+.carousel-dot{width:9px;height:9px;border-radius:50%;border:1px solid var(--gold);background:transparent;padding:0;cursor:pointer}.carousel-dot.active{background:var(--gold);box-shadow:0 0 14px rgba(217,182,111,.7)}
+.carousel-reading{width:min(820px,100%);margin:0 auto 18px;text-align:center;background:rgba(15,12,31,.72);border:1px solid rgba(217,182,111,.22);padding:22px 28px;border-radius:18px;min-height:180px;transition:.4s}
+.card-lightbox{position:fixed;inset:0;z-index:9999;display:none;place-items:center;background:rgba(0,0,0,.9);backdrop-filter:blur(8px);padding:22px}.card-lightbox.show{display:grid}.lightbox-stage img{display:block;max-width:92vw;max-height:92vh;object-fit:contain;filter:drop-shadow(0 0 35px rgba(217,182,111,.28))}.lightbox-stage img.reversed{transform:rotate(180deg)}.lightbox-close{position:fixed;right:22px;top:18px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(217,182,111,.55);background:rgba(0,0,0,.55);color:#f2ead7;font-size:1.8rem;cursor:pointer}
+@media(max-width:720px){.art-button{width:min(430px,94vw)}.art-button .result-card-frame>img{max-height:74vh}.single-summary,.carousel-reading{padding:18px 16px}.three-carousel{padding:0 28px 30px;min-height:72vh}.carousel-stage{height:68vh}.carousel-card{width:min(390px,82vw)}.carousel-card .result-card-frame>img{max-height:64vh}.carousel-card.prev{transform:translate(-118%,-50%) scale(.55);opacity:.18}.carousel-card.next{transform:translate(18%,-50%) scale(.55);opacity:.18}.carousel-nav{width:38px;height:54px;font-size:1.8rem}.carousel-prev{left:0}.carousel-next{right:0}}
+@media(prefers-reduced-motion:reduce){.carousel-card{transition-duration:.15s}}
+.version-badge::after{content:" • artwork-first"!important}

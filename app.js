@@ -136,8 +136,31 @@ $('#show-result').onclick=()=>{renderResult();go('result')};
 function orientation(c){return c.reversed?'逆位置':'正位置'}
 function key(c){return c.reversed?c.reverse:c.upright}
 function mainMessage(c){return c.reversed?c.shadow:c.message}
-function renderResult(){const q=$('#question-echo');q.textContent=state.question?`「${state.question}」`:'心に浮かべた問いに対して';const body=$('#result-body');if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="result-hero"><div class="result-card-frame ${state.visual?.glow||''} ${state.visual?.motion||''} ${state.visual?.filter||''} ${cardFxClass(c)}">${specialFxMarkup()}<div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div><div class="result-copy"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div><div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${c.action}</p></div>`}else{body.innerHTML=`<div class="three-results">${state.selected.map((c,i)=>`<article class="mini-result"><div class="result-card-frame ${state.visual?.glow||''} ${state.visual?.motion||''} ${state.visual?.filter||''} ${cardFxClass(c)}">${specialFxMarkup()}<div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div><h3>${modes[state.mode].positions[i]}：${c.jp}</h3><p>${orientation(c)}｜${key(c)}</p><p>${mainMessage(c)}</p></article>`).join('')}</div><div class="reading-block"><h4>三枚をつなぐ物語</h4><p>${threeStory()}</p></div><div class="reading-block"><h4>次の一歩</h4><p>${state.selected[1].action}</p></div>`}}
-function interpret(c){const prefix=state.mode==='reignite'?'再点火の鍵は、':state.mode==='answer'?'問いへの答えは、':state.mode==='one'?'今日の流れは、':'';return `${prefix}${mainMessage(c)} ${c.reversed?'急いで突破しようとせず、まず絡まっているものを見つけることが大切です。':'今は、カードが示す力を生活の中の小さな選択に移す時です。'}`}
+let resultCarouselTimer=null;
+function cardImagePath(c){return `images/${String(c.n).padStart(2,'0')}-${c.slug}.png`}
+function cardArt(c,extra=''){return `<div class="result-card-frame ${extra} ${state.visual?.glow||''} ${state.visual?.filter||''} ${cardFxClass(c)}">${specialFxMarkup()}<div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}" loading="eager"></div>`}
+function openCardLightbox(c){
+  let box=document.querySelector('.card-lightbox');
+  if(!box){box=document.createElement('div');box.className='card-lightbox';box.innerHTML='<button class="lightbox-close" aria-label="閉じる">×</button><div class="lightbox-stage"></div>';document.body.appendChild(box);box.onclick=e=>{if(e.target===box||e.target.closest('.lightbox-close'))box.classList.remove('show')}}
+  box.querySelector('.lightbox-stage').innerHTML=`<img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}">`;
+  box.classList.add('show');
+}
+function setupResultArtClicks(){document.querySelectorAll('[data-card-index]').forEach(el=>el.onclick=()=>openCardLightbox(state.selected[Number(el.dataset.cardIndex)]))}
+function setupThreeCarousel(){
+  if(resultCarouselTimer)clearInterval(resultCarouselTimer);
+  const stage=document.querySelector('.three-carousel'); if(!stage)return;
+  const slides=[...stage.querySelectorAll('.carousel-card')], dots=[...stage.querySelectorAll('.carousel-dot')];
+  let active=0;
+  const show=i=>{active=(i+slides.length)%slides.length;slides.forEach((el,n)=>{const d=n-active;el.classList.toggle('active',n===active);el.classList.toggle('prev',d===-1||d===slides.length-1);el.classList.toggle('next',d===1||d===-(slides.length-1));el.setAttribute('aria-hidden',n===active?'false':'true')});dots.forEach((d,n)=>d.classList.toggle('active',n===active));const c=state.selected[active];document.querySelector('.carousel-reading').innerHTML=`<h3>${modes[state.mode].positions[active]}：${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p>`}
+  const restart=()=>{clearInterval(resultCarouselTimer);resultCarouselTimer=setInterval(()=>show(active+1),5200)};
+  stage.querySelector('.carousel-prev').onclick=()=>{show(active-1);restart()};stage.querySelector('.carousel-next').onclick=()=>{show(active+1);restart()};dots.forEach((d,n)=>d.onclick=()=>{show(n);restart()});slides.forEach((el,n)=>el.onclick=()=>{if(n===active)openCardLightbox(state.selected[n]);else{show(n);restart()}});show(0);restart();
+}
+function renderResult(){
+  if(resultCarouselTimer){clearInterval(resultCarouselTimer);resultCarouselTimer=null}
+  const q=$('#question-echo');q.textContent=state.question?`「${state.question}」`:'心に浮かべた問いに対して';const body=$('#result-body');
+  if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="v53-single"><button class="art-button" data-card-index="0" aria-label="カードを拡大表示">${cardArt(c,'result-art-large')}</button><div class="single-summary"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div><div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${c.action}</p></div>`;setupResultArtClicks()}
+  else{body.innerHTML=`<div class="three-carousel" aria-label="過去・現在・未来のカード"><button class="carousel-nav carousel-prev" aria-label="前のカード">‹</button><div class="carousel-stage">${state.selected.map((c,i)=>`<button class="carousel-card" data-index="${i}" aria-label="${modes[state.mode].positions[i]} ${c.jp}">${cardArt(c,'carousel-art')}<span>${modes[state.mode].positions[i]}</span></button>`).join('')}</div><button class="carousel-nav carousel-next" aria-label="次のカード">›</button><div class="carousel-dots">${state.selected.map((_,i)=>`<button class="carousel-dot" aria-label="${i+1}枚目"></button>`).join('')}</div></div><div class="carousel-reading"></div><div class="reading-block"><h4>三枚をつなぐ物語</h4><p>${threeStory()}</p></div><div class="reading-block"><h4>次の一歩</h4><p>${state.selected[1].action}</p></div>`;setupThreeCarousel()}
+}
 function threeStory(){const [a,b,c]=state.selected;return `過去には「${a.jp}」が示す${key(a)}の流れがありました。現在は「${b.jp}」の${key(b)}が中心にあります。この流れを受け止めることで、未来の「${c.jp}」が示す${key(c)}へ向かいます。未来は決定ではなく、今の選び方によって形を変える余地があります。`}
 $('#again').onclick=()=>{state.selected=[];document.body.classList.remove('v4-reading');go('modes')};
 $('#save-result').onclick=saveImage;
