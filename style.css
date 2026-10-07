@@ -464,67 +464,51 @@ body.daily-closed{background:#050509}
 @media(prefers-reduced-motion:reduce){.carousel-card{transition-duration:.15s}}
 .version-badge::after{content:" • artwork-first"!important}
 
-/* v5.3.3: ensure the single-card artwork itself always receives clicks */
-.v53-single .art-button{position:relative;z-index:8;pointer-events:auto;touch-action:manipulation}
-.v53-single .art-button .result-card-frame,.v53-single .art-button .result-card-frame>img{pointer-events:none}
-
-
-/* v5.3.3: dedicated click/tap layer over the one-card result artwork */
-.v53-single .art-button{position:relative!important;z-index:20!important;isolation:isolate}
-.v53-single .single-card-hitarea{position:absolute;inset:0;z-index:999;display:block;pointer-events:auto;cursor:zoom-in;touch-action:manipulation;background:transparent}
-
-/* v5.3.3: one-card reveal is opened by the user's click/tap */
-.single-reveal-clickable{cursor:pointer;touch-action:manipulation}
-.single-reveal-clickable .card-special-fx,.single-reveal-clickable .card-aura,.single-reveal-clickable .flip-inner,.single-reveal-clickable .flip-face,.single-reveal-clickable img{pointer-events:none}
-.single-reveal-clickable:focus-visible{outline:2px solid currentColor;outline-offset:6px}
-
-
-/* v5.3.4: reliable one-card reveal tap target */
-.single-reveal-clickable{position:relative;cursor:pointer}
-.single-reveal-hitarea{
-  position:absolute!important;
-  inset:0!important;
-  z-index:10000!important;
-  display:block!important;
-  width:100%!important;
-  height:100%!important;
-  margin:0!important;
-  padding:0!important;
-  border:0!important;
-  border-radius:14px!important;
-  background:transparent!important;
-  cursor:pointer!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
-  -webkit-tap-highlight-color:transparent;
-}
-.single-reveal-hitarea:focus-visible{outline:2px solid currentColor;outline-offset:6px}
-
-
 /* =========================================================
-   Effects v5.3.6 — one-card ritual flow
-   selected -> back-spin -> receive -> click -> reveal
+   Effects v5.3.7 — audited one-card ritual
+   select -> back spin -> automatic ready state -> click -> flip open
    ========================================================= */
 #show-result[hidden]{display:none!important}
-.single-reveal-v536{cursor:default;touch-action:manipulation}
-.single-reveal-v536 .card-special-fx,
-.single-reveal-v536 .card-aura,
-.single-reveal-v536 .flip-inner,
-.single-reveal-v536 .flip-face,
-.single-reveal-v536 img{pointer-events:none}
-.single-reveal-v536.back-spin .flip-inner{
-  animation:v536BackSpin .9s cubic-bezier(.2,.72,.22,1) both!important;
+#show-result.result-ready{animation:v537ResultReady .45s ease-out both}
+@keyframes v537ResultReady{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+button.flip-card.one-card-ritual{
+  display:block;
+  position:relative;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  appearance:none;
+  -webkit-appearance:none;
+  touch-action:manipulation;
 }
-.single-reveal-v536.ready-to-receive{
+button.flip-card.one-card-ritual:disabled{opacity:1}
+button.flip-card.one-card-ritual .card-special-fx,
+button.flip-card.one-card-ritual .card-aura,
+button.flip-card.one-card-ritual .flip-inner,
+button.flip-card.one-card-ritual .flip-face,
+button.flip-card.one-card-ritual img,
+button.flip-card.one-card-ritual .card-caption{pointer-events:none}
+button.flip-card.one-card-ritual.back-spin .flip-inner{
+  animation:v537BackSpin .9s cubic-bezier(.2,.72,.22,1) both!important;
+}
+button.flip-card.one-card-ritual.ready-to-receive{
   cursor:pointer;
-  filter:drop-shadow(0 0 14px rgba(217,182,111,.34));
+  filter:drop-shadow(0 0 18px rgba(217,182,111,.5));
 }
-.single-reveal-v536.ready-to-receive:focus-visible{outline:2px solid var(--gold);outline-offset:7px}
-@keyframes v536BackSpin{
-  0%{transform:rotateY(0deg) scale(.96)}
-  48%{transform:rotateY(180deg) scale(1.045)}
-  100%{transform:rotateY(360deg) scale(1)}
+button.flip-card.one-card-ritual.ready-to-receive::after{
+  content:"";
+  position:absolute;
+  inset:-7px;
+  border:1px solid rgba(231,198,123,.72);
+  border-radius:17px;
+  box-shadow:0 0 20px rgba(217,182,111,.26);
+  pointer-events:none;
+  animation:v537ReadyPulse 1.8s ease-in-out infinite;
 }
-@media(prefers-reduced-motion:reduce){
-  .single-reveal-v536.back-spin .flip-inner{animation-duration:.15s!important}
-}
+button.flip-card.one-card-ritual.ready-to-receive:focus-visible{outline:2px solid var(--gold);outline-offset:9px}
+@keyframes v537BackSpin{0%{transform:rotateY(0deg) scale(.96)}48%{transform:rotateY(180deg) scale(1.045)}100%{transform:rotateY(360deg) scale(1)}}
+@keyframes v537ReadyPulse{50%{opacity:.45;box-shadow:0 0 34px rgba(217,182,111,.45)}}
+@media(prefers-reduced-motion:reduce){button.flip-card.one-card-ritual.back-spin .flip-inner{animation-duration:.15s!important}}

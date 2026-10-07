@@ -135,59 +135,69 @@ function reveal(){
   chooseVisual(state.selected[0]);
   document.body.classList.add('v4-reading','v4-dim');
   setTimeout(()=>document.body.classList.remove('v4-dim'),1300);
+
   const wrap=$('#revealed-cards');
   const resultBtn=$('#show-result');
-  wrap.innerHTML='';
   const isSingle=state.selected.length===1;
+  wrap.innerHTML='';
 
-  // v5.3.6: 1枚引きは「選択 → 裏面のまま回転 → 受け取り待ち → クリックで開示」。
-  // 3枚引きの既存動作は変更しない。
+  // v5.3.7: reveal flow is explicit and state-based.
+  // One card: select -> back spin -> automatically ready -> click card -> flip open -> result button.
+  // Three cards: keep the established automatic sequential reveal.
   if(resultBtn){
     resultBtn.hidden=isSingle;
     resultBtn.disabled=isSingle;
   }
 
   state.selected.forEach((c,i)=>{
-    const el=document.createElement('div');
-    el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}${isSingle?' single-reveal-v536':''}`;
+    const el=document.createElement(isSingle?'button':'div');
+    if(isSingle){
+      el.type='button';
+      el.disabled=true;
+      el.setAttribute('aria-label','カードの回転を待っています');
+    }
+    el.className=`flip-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}${isSingle?' one-card-ritual':''}`;
     el.style.setProperty('--delay',`${i*.55}s`);
     el.innerHTML=`${specialFxMarkup()}<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;
     wrap.appendChild(el);
 
+    let phase=isSingle?'spinning':'waiting';
     const openCard=()=>{
-      if(el.classList.contains('open'))return;
+      if(phase==='open')return;
+      phase='open';
+      el.classList.remove('ready-to-receive','back-spin');
       el.classList.add('open','summoned');
-      el.classList.remove('ready-to-receive');
-      el.removeAttribute('role');
-      el.removeAttribute('tabindex');
-      el.removeAttribute('aria-label');
+      if(isSingle){
+        el.disabled=true;
+        el.setAttribute('aria-label','開かれたカード');
+      }
       document.body.classList.add('reveal-flash','screen-rumble');
       setTimeout(()=>document.body.classList.remove('reveal-flash','screen-rumble'),1050);
       if(isSingle && resultBtn){
-        resultBtn.hidden=false;
-        resultBtn.disabled=false;
+        // Wait until the visual flip is underway before offering the reading.
+        setTimeout(()=>{
+          resultBtn.hidden=false;
+          resultBtn.disabled=false;
+          resultBtn.classList.add('result-ready');
+        },760);
       }
     };
 
     if(isSingle){
-      // まず裏面のまま一回転。回転完了後にだけ受け取り操作を有効にする。
-      el.setAttribute('aria-label','カードを受け取る');
+      // The card spins while still showing its back. No user action is required here.
       setTimeout(()=>{
         el.classList.add('back-spin');
         setTimeout(()=>{
           el.classList.remove('back-spin');
+          phase='ready';
+          el.disabled=false;
           el.classList.add('ready-to-receive');
-          el.setAttribute('role','button');
-          el.setAttribute('tabindex','0');
-          el.addEventListener('click',openCard,{once:true});
-          el.addEventListener('keydown',e=>{
-            if((e.key==='Enter'||e.key===' ')&&!el.classList.contains('open')){
-              e.preventDefault();
-              openCard();
-            }
-          });
-        },950);
+          el.setAttribute('aria-label','カードを受け取って開く');
+        },900);
       },220);
+      el.addEventListener('click',()=>{
+        if(phase==='ready')openCard();
+      });
     }else{
       setTimeout(openCard,220+i*520);
     }
