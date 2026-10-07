@@ -1,27 +1,120 @@
-# Effects v5.3.3.1 — カード大型表示 + 3枚カルーセル — Daily Ritual + Test Mode
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080713" />
+  <meta name="description" content="スキ3000突破記念・人生再点火タロット。無料で楽しめる大アルカナ22枚のオリジナル占いです。" />
+  <title>人生再点火タロット</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=5.1" />
+</head>
+<body>
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="mist mist-a"></div><div class="mist mist-b"></div>
+  <div id="atmosphere" class="atmosphere" aria-hidden="true">
+    <div class="veil veil-a"></div><div class="veil veil-b"></div>
+    <div id="particles" class="particles"></div>
+    <div class="vignette"></div>
+  </div>
 
-通常公開では v5.1 と同じ一日回数制限が働きます。
+  <main class="app-shell">
+    <section id="home" class="screen active hero" aria-labelledby="main-title">
+      <div class="sigil" aria-hidden="true">✦</div>
+      <p class="eyebrow">スキ3000突破記念・読者無料サービス</p>
+      <h1 id="main-title">人生再点火<br><span>TAROT</span></h1>
+      <p class="lead">今、心に浮かぶことを一つだけ。<br>二十二枚のカードが、まだ言葉にならない兆しを映します。</p>
+      <button class="primary" data-go="modes">カードをひらく</button>
+      <p class="tiny">この占いは娯楽を目的としたものです。重要な判断は、現実の情報も大切にしてください。</p>
+    </section>
 
-- 1回目：通常
-- 2回目：警告後、続行可能
-- 3回目：回答拒否
-- 4回目以降：その日は停止
-- 翌日：自動リセット
+    <section id="modes" class="screen" aria-labelledby="mode-title">
+      <button class="back" data-go="home" aria-label="戻る">←</button>
+      <p class="eyebrow">CHOOSE A READING</p>
+      <h2 id="mode-title">何を占いますか</h2>
+      <div class="mode-grid">
+        <button class="mode-card" data-mode="one"><b>今日の一枚</b><span>今日の流れと小さな指針</span></button>
+        <button class="mode-card" data-mode="answer"><b>迷いへの答え</b><span>いま抱える問いへの示唆</span></button>
+        <button class="mode-card" data-mode="three"><b>過去・現在・未来</b><span>三枚で物語の流れを見る</span></button>
+        <button class="mode-card" data-mode="reignite"><b>人生再点火の兆し</b><span>次の一歩に必要な火種</span></button>
+      </div>
+    </section>
 
-## 制作者用テストモード
+    <section id="question" class="screen" aria-labelledby="question-title">
+      <button class="back" data-go="modes" aria-label="戻る">←</button>
+      <p class="eyebrow" id="mode-label">YOUR QUESTION</p>
+      <h2 id="question-title">心の中で問いを整えてください</h2>
+      <p class="lead compact">言葉にしても、胸にしまったままでもかまいません。</p>
+      <textarea id="question-input" maxlength="120" placeholder="例：これから始めたいことについて、何を大切にすればよい？"></textarea>
+      <p class="counter"><span id="count">0</span>/120</p>
+      <button class="primary" id="begin-reading">カードを並べる</button>
+    </section>
 
-公開URLの末尾に `?test=1` を付けて開くと、そのタブでは一日回数制限を無視して何度でも占えます。
+    <section id="daily-warning" class="screen omen-screen" aria-labelledby="daily-warning-title">
+      <p class="eyebrow">A SECOND QUESTION</p>
+      <div class="omen-sigil" aria-hidden="true">☾</div>
+      <h2 id="daily-warning-title">今日は、すでに一度カードに問いかけています</h2>
+      <p class="lead compact">同じ日に何度も答えを求めると、最初に受け取った兆しを見失うことがあります。</p>
+      <p class="omen-copy">それでも、もう一度だけ問いかけますか？</p>
+      <div class="actions omen-actions">
+        <button class="primary danger-soft" id="warning-continue">それでも占う</button>
+        <button class="secondary" id="warning-stop">今日はやめる</button>
+      </div>
+    </section>
 
-例：
-`https://ユーザー名.github.io/リポジトリ名/?test=1`
+    <section id="daily-silence" class="screen omen-screen silence-screen" aria-labelledby="daily-silence-title">
+      <p class="eyebrow">THE CARDS REMAIN SILENT</p>
+      <div class="silent-card" aria-hidden="true"><img src="images/card-back.svg" alt=""></div>
+      <h2 id="daily-silence-title">カードは、今日はもう答えません</h2>
+      <p class="omen-copy strong">これ以上、同じ日に答えを求めてはいけません。</p>
+      <p class="lead compact">今日のカードは沈黙を選びました。最初に受け取った言葉を、しばらくそのまま置いてみてください。</p>
+      <button class="secondary" data-go="home">入口へ戻る</button>
+    </section>
 
-通常のURLで開けば、本番の回数制限に戻ります。
+    <section id="daily-closed" class="screen omen-screen closed-screen" aria-labelledby="daily-closed-title">
+      <p class="eyebrow">THE GATE IS CLOSED</p>
+      <div class="omen-sigil closed" aria-hidden="true">✦</div>
+      <h2 id="daily-closed-title">今日はもう、カードは答えません</h2>
+      <p class="lead compact">また日付が変わってから、静かな気持ちで訪れてください。</p>
+      <button class="secondary" data-go="home">入口へ戻る</button>
+    </section>
 
-テストモードでの占いは本番用の回数カウンターを増やしません。
+    <section id="draw" class="screen" aria-labelledby="draw-title">
+      <p class="eyebrow">LISTEN TO YOUR INTUITION</p>
+      <h2 id="draw-title">惹かれるカードを選んでください</h2>
+      <p class="lead compact" id="draw-help">一枚選びます</p>
+      <div id="deck" class="deck" role="group" aria-label="伏せられたタロットカード"></div>
+      <p class="selection-status" id="selection-status"></p>
+    </section>
+
+    <section id="reveal" class="screen" aria-labelledby="reveal-title">
+      <p class="eyebrow">THE CARDS HAVE SPOKEN</p>
+      <h2 id="reveal-title">カードを受け取って</h2>
+      <div id="revealed-cards" class="revealed-cards"></div>
+      <button class="primary" id="show-result">言葉を受け取る</button>
+    </section>
+
+    <section id="result" class="screen result-screen" aria-labelledby="result-title">
+      <p class="eyebrow">YOUR READING</p>
+      <h2 id="result-title">今回のメッセージ</h2>
+      <p class="question-echo" id="question-echo"></p>
+      <div id="result-body"></div>
+      <div class="actions">
+        <button class="primary" id="save-result">結果を画像保存</button>
+        <button class="secondary" id="again">もう一度占う</button>
+      </div>
+      <p class="share-note">結果画像には、入力した質問文は表示されません。</p>
+    </section>
+  </main>
+
+  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.3</span></footer>
+  <script src="data/cards.js?v=5.3"></script>
+  <script src="app.js?v=5.3"></script>
+</body>
+</html>
 
 
-## v5.3.3
-1枚引きの結果カードをクリック／タップしたとき、高解像度の拡大表示を確実に開くよう修正。
-
-
-- v5.3.3: 1枚引き結果カードのクリック／タップ拡大を専用ヒットレイヤーで修正。
+## v5.3.4
+1枚引きの「カードを受け取って」画面に専用クリック/タップ領域を追加。

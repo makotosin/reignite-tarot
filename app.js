@@ -155,13 +155,12 @@ function reveal(){
     if(isSingle){
       // 1枚引きは「受け取る」操作として、裏向きカードを本人のクリック/タップで開く。
       el.classList.add('single-reveal-clickable');
-      el.setAttribute('role','button');
-      el.setAttribute('tabindex','0');
-      el.setAttribute('aria-label','カードを受け取って開く');
-      el.addEventListener('click',openCard);
-      el.addEventListener('keydown',e=>{
-        if(e.key==='Enter'||e.key===' '){e.preventDefault();openCard()}
-      });
+      const hit=document.createElement('button');
+      hit.type='button';
+      hit.className='single-reveal-hitarea';
+      hit.setAttribute('aria-label','カードを受け取って開く');
+      hit.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openCard()});
+      el.appendChild(hit);
     }else{
       // 3枚引きの既存挙動は変更しない。
       setTimeout(openCard,220+i*520);

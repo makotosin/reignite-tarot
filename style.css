@@ -477,3 +477,25 @@ body.daily-closed{background:#050509}
 .single-reveal-clickable{cursor:pointer;touch-action:manipulation}
 .single-reveal-clickable .card-special-fx,.single-reveal-clickable .card-aura,.single-reveal-clickable .flip-inner,.single-reveal-clickable .flip-face,.single-reveal-clickable img{pointer-events:none}
 .single-reveal-clickable:focus-visible{outline:2px solid currentColor;outline-offset:6px}
+
+
+/* v5.3.4: reliable one-card reveal tap target */
+.single-reveal-clickable{position:relative;cursor:pointer}
+.single-reveal-hitarea{
+  position:absolute!important;
+  inset:0!important;
+  z-index:10000!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:14px!important;
+  background:transparent!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent;
+}
+.single-reveal-hitarea:focus-visible{outline:2px solid currentColor;outline-offset:6px}
