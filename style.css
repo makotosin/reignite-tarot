@@ -467,3 +467,8 @@ body.daily-closed{background:#050509}
 /* v5.3.1: ensure the single-card artwork itself always receives clicks */
 .v53-single .art-button{position:relative;z-index:8;pointer-events:auto;touch-action:manipulation}
 .v53-single .art-button .result-card-frame,.v53-single .art-button .result-card-frame>img{pointer-events:none}
+
+
+/* v5.3.2: dedicated click/tap layer over the one-card result artwork */
+.v53-single .art-button{position:relative!important;z-index:20!important;isolation:isolate}
+.v53-single .single-card-hitarea{position:absolute;inset:0;z-index:999;display:block;pointer-events:auto;cursor:zoom-in;touch-action:manipulation;background:transparent}
