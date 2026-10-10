@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5.4.3-p2" />
+  <link rel="stylesheet" href="style.css?v=phase4-draw-elder-1" />
 </head>
 <body>
   <canvas id="stars" aria-hidden="true"></canvas>
@@ -84,7 +84,8 @@
       <button class="secondary" data-go="home">入口へ戻る</button>
     </section>
 
-    <section id="draw" class="screen" aria-labelledby="draw-title">
+    <section id="draw" class="screen" aria-labelledby="draw-title" data-elder-stage="0">
+      <div class="draw-elder-background" aria-hidden="true"><img id="draw-elder-image" src="spirit-elder.webp" alt=""></div>
       <p class="eyebrow">LISTEN TO YOUR INTUITION</p>
       <h2 id="draw-title">惹かれるカードを選んでください</h2>
       <p class="lead compact" id="draw-help">一枚選びます</p>
@@ -112,6 +113,6 @@
 
   <footer>© 人生再点火タロット <span class="version-badge">Effects v5.4.3 / Phase 2</span></footer>
   <script src="data/cards.js?v=5.4.0"></script>
-  <script src="app.js?v=phase4-daily-v2"></script>
+  <script src="app.js?v=phase4-draw-elder-1"></script>
 </body>
 </html>

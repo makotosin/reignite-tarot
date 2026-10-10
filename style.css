@@ -613,3 +613,47 @@ body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
 .spirit-event[data-stage="100"] .spirit-portrait{box-shadow:0 0 95px rgba(110,5,22,.25)}
 @media(max-height:680px){.spirit-portrait{height:clamp(180px,37dvh,300px)}.spirit-scene{padding:10px 12px}.spirit-scene p{line-height:1.45}}
 @media(prefers-reduced-motion:reduce){.spirit-portrait,.spirit-portrait img{animation:none!important;transition:none!important}}
+
+/* Phase 4 immersive spirit presentation: portrait fills the viewport, not a small card. */
+.spirit-event{inset:0;padding:0!important;display:flex;align-items:stretch;justify-content:center;overflow:hidden;background:#050307!important;isolation:isolate}
+.spirit-scene{position:relative;width:100vw!important;max-width:none!important;height:100dvh;max-height:none!important;overflow:hidden!important;padding:0!important;border:0!important;box-shadow:none!important;background:#050307!important;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:0}
+.spirit-portrait{position:absolute!important;inset:0 0 auto 0!important;width:100vw!important;height:85dvh!important;max-width:none!important;margin:0!important;border-radius:0!important;overflow:hidden;box-shadow:none!important;z-index:0;animation:none!important}
+.spirit-portrait img{display:block;width:100%!important;height:100%!important;object-fit:cover;object-position:60% 36%;mask-image:none!important;animation:spiritCloseUp 1.2s ease-out both!important;filter:brightness(.9) contrast(1.07)!important;transform-origin:62% 28%}
+.spirit-scene:before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,transparent 25%,rgba(0,0,0,.1) 42%,rgba(0,0,0,.82) 68%,#030205 94%)}
+.spirit-scene:after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 100px 20px #050207}
+.spirit-scene>p,.spirit-scene>h2,.spirit-scene>button{position:relative;z-index:2;max-width:min(88vw,600px);text-align:center}
+.spirit-scene #spirit-count{color:#e4bb8a;font-size:clamp(15px,2.5vh,22px);letter-spacing:.16em;margin:0 0 .2em}
+.spirit-scene #spirit-title{font-size:clamp(23px,4vh,36px);margin:.12em 0 .3em;text-shadow:0 2px 16px #000}
+.spirit-scene #spirit-line{font-size:clamp(15px,2.35vh,21px);line-height:1.65!important;margin:0 0 1em;text-shadow:0 2px 12px #000}
+.spirit-scene #spirit-continue{margin:0 0 max(3dvh,env(safe-area-inset-bottom));min-height:46px}
+@keyframes spiritCloseUp{from{opacity:0}to{opacity:1}}
+/* Escalation is driven exclusively by the daily stage. */
+.spirit-event[data-stage="5"] .spirit-portrait img{filter:brightness(.94) saturate(.75)!important;transform:scale(1)}
+.spirit-event[data-stage="10"] .spirit-portrait img{filter:brightness(.78) contrast(1.2) saturate(.72)!important;transform:scale(1.1)}
+.spirit-event[data-stage="20"] .spirit-portrait img{filter:brightness(.66) contrast(1.42) sepia(.24)!important;transform:scale(1.2)}
+.spirit-event[data-stage="30"] .spirit-portrait img{filter:brightness(.72) contrast(1.6) sepia(.65) saturate(1.7)!important;transform:scale(1.3)}
+.spirit-event[data-stage="50"] .spirit-portrait img{filter:brightness(.65) contrast(1.9) sepia(.8) saturate(2.3)!important;transform:scale(1.42)}
+.spirit-event[data-stage="100"] .spirit-portrait img{filter:brightness(.38) contrast(2.3) grayscale(.85)!important;transform:scale(1.57)}
+.spirit-event[data-stage="1000"] .spirit-portrait img{filter:brightness(1.12) contrast(1.1) sepia(.2)!important;transform:scale(1.05)}
+.spirit-event[data-stage="30"] .spirit-scene:before,.spirit-event[data-stage="50"] .spirit-scene:before{background:linear-gradient(180deg,rgba(105,0,0,.18),transparent 30%,rgba(20,0,0,.35) 52%,#070103 91%)}
+.spirit-event[data-stage="100"] .spirit-scene:before{background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.6) 45%,#000 88%)}
+.spirit-event[data-stage="1000"] .spirit-scene:before{background:linear-gradient(180deg,rgba(120,73,35,.1),transparent 32%,rgba(0,0,0,.8) 70%,#030205 94%)}
+@media(max-width:600px){.spirit-portrait{height:84dvh!important}.spirit-portrait img{object-position:61% 34%}.spirit-scene #spirit-line{max-width:86vw}}
+@media(prefers-reduced-motion:reduce){.spirit-portrait img{animation:none!important}}
+
+/* Phase 4: the elder watches from behind the cards; decorative and non-interactive. */
+#draw{isolation:isolate;min-height:min(76dvh,740px);padding:clamp(28px,5vh,65px) 8px 28px;overflow:hidden;border-radius:18px}
+#draw .draw-elder-background{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:#08060d}
+#draw .draw-elder-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 25%;opacity:.38;filter:brightness(.67) saturate(.65);transform:scale(1.04);transition:filter .8s,transform .8s,opacity .8s}
+#draw .draw-elder-background:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(4,3,9,.26),rgba(4,3,9,.4) 43%,rgba(4,3,9,.86) 96%),radial-gradient(ellipse at 50% 75%,transparent 10%,rgba(0,0,0,.55) 100%)}
+#draw>.eyebrow,#draw>h2,#draw>.lead,#draw>.deck,#draw>.selection-status{position:relative;z-index:1;text-shadow:0 2px 12px #000,0 1px 5px #000}
+#draw .deck{background:transparent}
+#draw[data-elder-stage="5"] .draw-elder-background img{opacity:.44;filter:brightness(.8) saturate(.65);transform:scale(1.08)}
+#draw[data-elder-stage="10"] .draw-elder-background img{opacity:.5;filter:brightness(.69) contrast(1.15);transform:scale(1.13)}
+#draw[data-elder-stage="20"] .draw-elder-background img{opacity:.58;filter:brightness(.61) contrast(1.38) sepia(.23);transform:scale(1.19)}
+#draw[data-elder-stage="30"] .draw-elder-background img{opacity:.65;filter:brightness(.72) contrast(1.52) sepia(.58) saturate(1.6);transform:scale(1.25)}
+#draw[data-elder-stage="50"] .draw-elder-background img{opacity:.76;filter:brightness(.69) contrast(1.85) sepia(.75) saturate(2.1);transform:scale(1.35)}
+#draw[data-elder-stage="100"] .draw-elder-background img{opacity:.8;filter:brightness(.4) contrast(2.2) grayscale(.8);transform:scale(1.45)}
+#draw[data-elder-stage="1000"] .draw-elder-background img{opacity:.58;filter:brightness(1.04) sepia(.2);transform:scale(1.09)}
+@media(max-width:600px){#draw{min-height:70dvh;padding-top:34px}#draw .draw-elder-background img{object-position:54% 18%}#draw .deck{margin-top:30px}}
+@media(prefers-reduced-motion:reduce){#draw .draw-elder-background img{transition:none!important}}

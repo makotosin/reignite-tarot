@@ -85,7 +85,7 @@ function openSpiritEvent(count,continueReading){
   dialog.dataset.tone=e.tone;
   dialog.dataset.stage=String(count);
   const portrait=dialog.querySelector('.spirit-portrait img');
-  if(portrait)portrait.src=count>=30?'spirit-elder-ominous.webp':'spirit-elder.webp';
+  if(portrait)portrait.src=count>=30?'spirit-elder-ominous.webp?v=2':'spirit-elder.webp?v=2';
   $('#spirit-title').textContent=e.title;
   $('#spirit-line').textContent=e.line;
   $('#spirit-count').textContent=`本日 ${count} 回目`;
@@ -127,7 +127,18 @@ function registerReadingAttempt(){
   return next;
 }
 // 過去の結果・累計回数は保存しない。日別回数だけを演出に使用する。
+// The card-selection backdrop follows only today's count; never lifetime usage.
+function updateDrawElderBackground(count){
+  const screen=document.querySelector('#draw');
+  const portrait=document.querySelector('#draw-elder-image');
+  if(!screen||!portrait)return;
+  const stage=count>=1000?1000:count>=100?100:count>=50?50:count>=30?30:count>=20?20:count>=10?10:count>=5?5:0;
+  screen.dataset.elderStage=String(stage);
+  const image=stage>=30&&stage<1000?'spirit-elder-ominous.webp':'spirit-elder.webp';
+  if(portrait.getAttribute('src')!==image)portrait.setAttribute('src',image);
+}
 function startActualReading(){
+  updateDrawElderBackground(activeDailyCount());
   prepareDeck();
   go('draw');
 }
