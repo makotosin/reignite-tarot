@@ -2,14 +2,14 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#080713" />
   <meta name="description" content="スキ3000突破記念・人生再点火タロット。無料で楽しめる大アルカナ22枚のオリジナル占いです。" />
   <title>人生再点火タロット</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5.4.3" />
+  <link rel="stylesheet" href="style.css?v=5.4.3-p2" />
 </head>
 <body>
   <canvas id="stars" aria-hidden="true"></canvas>
@@ -44,11 +44,9 @@
 
     <section id="question" class="screen" aria-labelledby="question-title">
       <button class="back" data-go="modes" aria-label="戻る">←</button>
-      <p class="eyebrow" id="mode-label">YOUR QUESTION</p>
-      <h2 id="question-title">心の中で問いを整えてください</h2>
-      <p class="lead compact">言葉にしても、胸にしまったままでもかまいません。</p>
-      <textarea id="question-input" maxlength="120" placeholder="例：これから始めたいことについて、何を大切にすればよい？"></textarea>
-      <p class="counter"><span id="count">0</span>/120</p>
+      <p class="eyebrow" id="mode-label">YOUR READING</p>
+      <h2 id="question-title">占いを始めましょう</h2>
+      <p class="lead compact">選んだテーマについて、心を静かにしてカードに向き合ってください。</p>
       <button class="primary" id="begin-reading">カードを並べる</button>
     </section>
 
@@ -99,18 +97,16 @@
     <section id="result" class="screen result-screen" aria-labelledby="result-title">
       <p class="eyebrow">YOUR READING</p>
       <h2 id="result-title">今回のメッセージ</h2>
-      <p class="question-echo" id="question-echo"></p>
       <div id="result-body"></div>
       <div class="actions">
         <button class="primary" id="save-result">結果を画像保存</button>
         <button class="secondary" id="again">もう一度占う</button>
       </div>
-      <p class="share-note">結果画像には、入力した質問文は表示されません。</p>
     </section>
   </main>
 
-  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.4.3</span></footer>
+  <footer>© 人生再点火タロット <span class="version-badge">Effects v5.4.3 / Phase 2</span></footer>
   <script src="data/cards.js?v=5.4.0"></script>
-  <script src="app.js?v=5.4.3"></script>
+  <script src="app.js?v=5.4.3-p1"></script>
 </body>
 </html>
