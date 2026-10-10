@@ -83,6 +83,9 @@ function openSpiritEvent(count,continueReading){
   const e=SPIRIT_EVENTS[count];if(!e){continueReading();return}
   const dialog=$('#spirit-event');if(!dialog){continueReading();return}
   dialog.dataset.tone=e.tone;
+  dialog.dataset.stage=String(count);
+  const portrait=dialog.querySelector('.spirit-portrait img');
+  if(portrait)portrait.src=count>=30?'spirit-elder-ominous.webp':'spirit-elder.webp';
   $('#spirit-title').textContent=e.title;
   $('#spirit-line').textContent=e.line;
   $('#spirit-count').textContent=`本日 ${count} 回目`;

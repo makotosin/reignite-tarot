@@ -596,3 +596,20 @@ body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
 .spirit-event[data-tone="uneasy"] .spirit-portrait img{filter:brightness(.56) sepia(.38)}
 .spirit-event[data-tone="caution"] .spirit-portrait img{filter:brightness(.87) sepia(.12)}
 .spirit-advice{border-left:2px solid #9d6a70;background:rgba(55,13,27,.22)}
+
+/* Phase 4: large close-up portraits; escalation based on today's count only */
+.spirit-event{padding:12px;overflow-y:auto;align-items:center}
+.spirit-scene{width:min(96vw,640px);max-height:calc(100dvh - 24px);overflow-y:auto;padding:clamp(12px,2.2vh,24px) 16px;box-sizing:border-box}
+.spirit-portrait{width:min(90vw,510px);height:clamp(260px,49dvh,490px);border-radius:42% 42% 8px 8px;box-shadow:0 0 70px rgba(190,120,100,.24)}
+.spirit-portrait img{width:100%;height:100%;object-fit:cover;object-position:center 25%;transform-origin:50% 35%;transition:filter .7s,transform .7s}
+.spirit-event[data-stage="5"] .spirit-portrait img{filter:brightness(.92) sepia(.12)}
+.spirit-event[data-stage="10"] .spirit-portrait img{filter:brightness(.72) contrast(1.12) sepia(.28)}
+.spirit-event[data-stage="20"] .spirit-portrait img{filter:brightness(.57) contrast(1.32) saturate(.7)}
+.spirit-event[data-stage="30"] .spirit-portrait img{filter:brightness(.78) contrast(1.5) sepia(.5) saturate(1.5);object-position:center 18%}
+.spirit-event[data-stage="50"] .spirit-portrait img{filter:brightness(.62) contrast(1.8) sepia(.65) saturate(1.8);object-position:center 13%}
+.spirit-event[data-stage="100"] .spirit-portrait img{filter:brightness(.36) contrast(2) grayscale(.9);object-position:center 10%}
+.spirit-event[data-stage="1000"] .spirit-portrait img{filter:brightness(1.08) contrast(1.14) sepia(.14);object-position:center 20%}
+.spirit-event[data-stage="30"] .spirit-portrait,.spirit-event[data-stage="50"] .spirit-portrait{box-shadow:0 0 95px rgba(175,19,29,.45)}
+.spirit-event[data-stage="100"] .spirit-portrait{box-shadow:0 0 95px rgba(110,5,22,.25)}
+@media(max-height:680px){.spirit-portrait{height:clamp(180px,37dvh,300px)}.spirit-scene{padding:10px 12px}.spirit-scene p{line-height:1.45}}
+@media(prefers-reduced-motion:reduce){.spirit-portrait,.spirit-portrait img{animation:none!important;transition:none!important}}
