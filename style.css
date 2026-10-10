@@ -679,3 +679,6 @@ body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
 .phase5-gate-box{max-width:440px;width:100%;padding:26px 20px;background:linear-gradient(#24192d,#0e0b16);border:1px solid #b7975c;border-radius:14px;text-align:center;color:#f1e7da}
 .phase5-gate-box h2{font-size:22px}.phase5-gate-box p{line-height:1.8}.phase5-gate-box .actions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
 .phase5-gate-box button{min-height:48px}
+
+/* Card-specific pictorial guide (22 major arcana) */
+.card-guide{margin-top:20px;text-align:left}.card-guide .guide-label{font-size:.85rem;color:#d8b877;font-weight:700;margin:12px 0 5px}.card-guide>p{line-height:1.8}.guide-meanings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}.guide-meaning{border:1px solid rgba(210,185,125,.25);border-radius:10px;padding:13px;background:rgba(0,0,0,.19)}.guide-meaning.chosen{border-color:rgba(231,196,118,.8);background:rgba(175,133,56,.13)}.guide-meaning strong{color:#e6cb8b}.guide-meaning p{font-size:.91rem;line-height:1.75;margin:8px 0 0}@media(max-width:560px){.guide-meanings{grid-template-columns:1fr}}
