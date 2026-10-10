@@ -657,3 +657,15 @@ body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
 #draw[data-elder-stage="1000"] .draw-elder-background img{opacity:.58;filter:brightness(1.04) sepia(.2);transform:scale(1.09)}
 @media(max-width:600px){#draw{min-height:70dvh;padding-top:34px}#draw .draw-elder-background img{object-position:54% 18%}#draw .deck{margin-top:30px}}
 @media(prefers-reduced-motion:reduce){#draw .draw-elder-background img{transition:none!important}}
+/* Draw-screen elder backdrop stacking fix: above screen background, below cards */
+#draw.screen{position:relative;isolation:isolate}
+#draw .draw-elder-background{position:absolute!important;inset:0!important;z-index:0!important;display:block!important;visibility:visible!important;pointer-events:none!important}
+#draw .draw-elder-background img{opacity:.55;object-position:center 22%}
+#draw > :not(.draw-elder-background){position:relative;z-index:1}
+#draw .deck-card{position:relative;z-index:2}
+#draw[data-elder-stage="5"] .draw-elder-background img{opacity:.57}
+#draw[data-elder-stage="10"] .draw-elder-background img{opacity:.62}
+#draw[data-elder-stage="20"] .draw-elder-background img{opacity:.67}
+#draw[data-elder-stage="30"] .draw-elder-background img{opacity:.74}
+#draw[data-elder-stage="50"] .draw-elder-background img{opacity:.8}
+#draw[data-elder-stage="100"] .draw-elder-background img{opacity:.85}
