@@ -62,6 +62,46 @@ const DAILY_READING_KEY='reigniteTarotDailyReadingV1';
 const TOTAL_READING_KEY='reigniteTarotCompletedTotalV1';
 const TEST_MODE=new URLSearchParams(location.search).get('test')==='1';
 
+// Phase 4 preview: the existing public daily gate is intentionally unchanged.
+// In ?test=1, use a separate counter so previews cannot alter real usage history.
+const PHASE4_TEST_KEY='reigniteTarotPhase4PreviewV1';
+const SPIRIT_EVENTS={
+  5:{tone:'caution',title:'最初の忠告',line:'またカードに問いかけるのかい。答えを急がず、少し考えてごらん。'},
+  10:{tone:'caution',title:'老婆のため息',line:'十度も尋ねれば、カードだって困ってしまうよ。'},
+  20:{tone:'uneasy',title:'不穏な気配',line:'まだ足りないのかい……。部屋の空気が変わってきたね。'},
+  30:{tone:'angry',title:'精霊の怒り',line:'いい加減におし！　運命を試し続けるものじゃない！'},
+  50:{tone:'angry',title:'深まる闇',line:'何度も答えを変えようとしても、選ぶのはあんただよ。'},
+  100:{tone:'silent',title:'奇妙な沈黙',line:'……。老婆はしばらく黙り込み、ただこちらを見つめている。'},
+  1000:{tone:'secret',title:'精霊の降参',line:'千回！　もう参ったよ。今日はあんたの根気の勝ちだね！'}
+};
+function getPreviewCount(){try{const v=JSON.parse(localStorage.getItem(PHASE4_TEST_KEY)||'{}');return v.date===localDayKey()?Math.max(0,Number(v.count)||0):0}catch(_){return 0}}
+function setPreviewCount(count){try{localStorage.setItem(PHASE4_TEST_KEY,JSON.stringify({date:localDayKey(),count:Math.max(0,Math.floor(count))}))}catch(_){}updateReadingCounters()}
+function updateReadingCounters(){const node=$('#reading-counters');if(node)node.textContent=`本日 ${TEST_MODE?getPreviewCount():getDailyReadingState().count} 回 ／ 累計 ${getCompletedReadingTotal()} 回${TEST_MODE?'（開発プレビュー）':''}`}
+function spiritTier(count){return count>=100?'silent':count>=50?'angry':count>=20?'uneasy':count>=5?'caution':'normal'}
+function updateSpiritMood(count){document.body.dataset.spiritMood=spiritTier(count)}
+function openSpiritEvent(count,continueReading){
+  const e=SPIRIT_EVENTS[count];if(!e){continueReading();return}
+  const dialog=$('#spirit-event');if(!dialog){continueReading();return}
+  dialog.dataset.tone=e.tone;
+  $('#spirit-title').textContent=e.title;
+  $('#spirit-line').textContent=e.line;
+  $('#spirit-count').textContent=`本日 ${count} 回目`;
+  dialog.hidden=false;
+  const button=$('#spirit-continue');button.focus();
+  button.onclick=()=>{dialog.hidden=true;continueReading()};
+}
+function beginPreviewReading(){const count=getPreviewCount()+1;setPreviewCount(count);updateSpiritMood(count);openSpiritEvent(count,startActualReading)}
+function reversalChance(count){return Math.min(.7,.35+Math.max(0,count-4)*.004)}
+function pickWeightedCard(pool,count){
+  // Increasing frequency of ominous cards is a disclosed game mechanic, not a prediction.
+  const dark=new Set([12,13,15,16,18]);const extra=Math.min(3,Math.max(0,count-4)*.025);
+  const weights=pool.map(c=>dark.has(Number(c.n))?1+extra:1);
+  let r=Math.random()*weights.reduce((a,b)=>a+b,0);
+  for(let i=0;i<pool.length;i++){r-=weights[i];if(r<=0)return pool[i]}
+  return pool[pool.length-1];
+}
+
+
 function localDayKey(){
   const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -99,7 +139,7 @@ function startActualReading(){
 }
 function handleDailyReadingGate(){
   if(TEST_MODE){
-    startActualReading();
+    beginPreviewReading();
     return;
   }
   const daily=getDailyReadingState();
@@ -122,7 +162,7 @@ function handleDailyReadingGate(){
   document.body.classList.add('daily-omen','daily-closed');
   go('daily-closed');
 }
-function go(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));scrollTo({top:0,behavior:'smooth'});} 
+function go(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));updateReadingCounters();scrollTo({top:0,behavior:'smooth'});} 
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;$('#mode-label').textContent=modes[state.mode].label.toUpperCase();go('question')});
 $('#begin-reading').onclick=handleDailyReadingGate;
@@ -137,7 +177,7 @@ $('#warning-stop').onclick=()=>{
 };
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function prepareDeck(){state.readingCounted=false;state.selected=[];state.visual={...VISUAL_THEMES[Math.floor(Math.random()*VISUAL_THEMES.length)],glow:'glow-soft',motion:'motion-sway'};applyVisual();state.pool=shuffle(TAROT_CARDS);const deck=$('#deck');deck.innerHTML='';const shown=state.pool.slice(0,13);shown.forEach((card,i)=>{const btn=document.createElement('button');btn.className='deck-card';btn.style.setProperty('--rot',`${(i-6)*2.1}deg`);btn.style.setProperty('--lift',`${Math.abs(i-6)*2}px`);btn.setAttribute('aria-label',`${i+1}枚目のカード`);btn.innerHTML='<img src="images/card-back.svg" alt="カードの裏面">';btn.onclick=()=>pick(card,btn);deck.appendChild(btn)});$('#draw-help').textContent=modes[state.mode].count===1?'直感で一枚選びます':'直感で三枚選びます';updateStatus()}
-function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;state.selected.push({...card,reversed:Math.random()<.35});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}
+function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;const count=TEST_MODE?getPreviewCount():getDailyReadingState().count;state.selected.push({...card,reversed:Math.random()<reversalChance(TEST_MODE?count:1)});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}
 function updateStatus(){const n=modes[state.mode].count;$('#selection-status').textContent=`${state.selected.length} / ${n} 枚を選択`}
 function reveal(){
   chooseVisual(state.selected[0]);
@@ -192,6 +232,7 @@ $('#show-result').onclick=()=>{
   try{
     renderResult();
     registerCompletedReading();
+    updateReadingCounters();
     go('result');
   }catch(err){
     console.error('Result render failed:',err);
@@ -255,3 +296,10 @@ function loadImage(src){return new Promise((ok,no)=>{const i=new Image();i.onloa
 function wrapText(ctx,text,x,y,maxWidth,lineHeight,font){ctx.font=font;let line='';const chars=[...text];for(const ch of chars){const test=line+ch;if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);line=ch;y+=lineHeight}else line=test}ctx.fillText(line,x,y)}
 // stars
 const canvas=$('#stars'),ctx=canvas.getContext('2d');let stars=[];function resize(){canvas.width=innerWidth*devicePixelRatio;canvas.height=innerHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);stars=Array.from({length:Math.min(150,innerWidth/7)},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.4+.2,a:Math.random()*.65+.15,s:Math.random()*.003+.001}))}function drawStars(t=0){ctx.clearRect(0,0,innerWidth,innerHeight);for(const s of stars){ctx.globalAlpha=s.a*(.65+.35*Math.sin(t*s.s+s.x));ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,7);ctx.fill()}requestAnimationFrame(drawStars)}addEventListener('resize',resize);resize();drawStars();
+
+// Developer preview controls: only available with ?test=1.
+if(TEST_MODE){
+  const panel=$('#phase4-preview');if(panel){panel.hidden=false;$('#phase4-set-count').onclick=()=>{const n=Number($('#phase4-count-input').value);if(Number.isFinite(n)){setPreviewCount(n);updateSpiritMood(n)}};$('#phase4-reset').onclick=()=>{setPreviewCount(0);updateSpiritMood(0)}}
+  updateSpiritMood(getPreviewCount());
+}
+updateReadingCounters();

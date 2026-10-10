@@ -559,3 +559,20 @@ body.reveal-flash::after{content:""!important;display:block!important;position:f
 /* Less distracting dots; the cards remain the focal point. */
 .particle{opacity:.2!important;filter:blur(2px)!important}
 @media(prefers-reduced-motion:reduce){.atmosphere::before,.atmosphere::after,.fx-card-arcane .card-special-fx,.fx-card-tower .card-special-fx{animation:none!important}body.reveal-flash::after{animation:none!important;display:none!important}}
+
+/* Phase 4: cinematic light and shadow, without geometric symbols. */
+.reading-counters{position:relative;z-index:8;text-align:center;color:#d9caa7;font-size:.78rem;padding:.55rem 1rem;letter-spacing:.08em}
+.spirit-event[hidden],.phase4-preview[hidden]{display:none!important}
+.spirit-event{position:fixed;inset:0;z-index:1000;background:radial-gradient(ellipse at 50% 35%,rgba(74,28,39,.7),rgba(0,0,0,.96) 72%);display:grid;place-items:center;padding:20px;animation:spiritEnter .9s ease-out both}
+.spirit-scene{width:min(92vw,470px);text-align:center;color:#f3e9d9;padding:2rem 1.25rem;background:linear-gradient(180deg,rgba(38,26,36,.84),rgba(8,6,12,.94));border:1px solid rgba(218,179,109,.45);box-shadow:0 0 90px rgba(147,33,42,.23)}
+.spirit-portrait{font-size:4rem;color:#e3c78d;text-shadow:0 0 35px rgba(246,223,176,.55);animation:spiritBreath 3s ease-in-out infinite}
+.spirit-scene h2{font-size:1.5rem;margin:.7rem 0;color:#efcf9c}.spirit-scene p{line-height:1.9}
+.spirit-event[data-tone="angry"]{background:radial-gradient(ellipse at 50% 20%,rgba(164,21,31,.72),#050206 70%);animation:spiritEnter .9s ease-out,spiritLightning 4s linear infinite}
+.spirit-event[data-tone="silent"]{background:#030305}.spirit-event[data-tone="secret"]{background:radial-gradient(ellipse at 50% 35%,#604b36,#08040b 75%)}
+body[data-spirit-mood="uneasy"] .atmosphere{filter:brightness(.75)}body[data-spirit-mood="angry"] .atmosphere{filter:brightness(.6) sepia(.3)}body[data-spirit-mood="silent"] .atmosphere{filter:brightness(.45)}
+.phase4-preview{position:relative;z-index:9;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;padding:.5rem;background:#21182a;color:#fff;font-size:.8rem}
+.phase4-preview input{width:6rem;background:#fff;color:#111;padding:.3rem}.phase4-preview button{padding:.35rem .6rem}
+@keyframes spiritEnter{from{opacity:0;filter:brightness(.2)}to{opacity:1;filter:brightness(1)}}
+@keyframes spiritBreath{50%{opacity:.65;transform:scale(1.05)}}
+@keyframes spiritLightning{0%,90%,94%,100%{filter:brightness(1)}91%,93%{filter:brightness(1.9)}}
+@media(prefers-reduced-motion:reduce){.spirit-event,.spirit-portrait{animation:none!important}}
