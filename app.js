@@ -59,25 +59,25 @@ function specialFxMarkup(){return '<div class="card-special-fx" aria-hidden="tru
 
 const $=s=>document.querySelector(s);
 const DAILY_READING_KEY='reigniteTarotDailyReadingV1';
-const TOTAL_READING_KEY='reigniteTarotCompletedTotalV1';
 const TEST_MODE=new URLSearchParams(location.search).get('test')==='1';
 
 // Phase 4 preview: the existing public daily gate is intentionally unchanged.
 // In ?test=1, use a separate counter so previews cannot alter real usage history.
 const PHASE4_TEST_KEY='reigniteTarotPhase4PreviewV1';
 const SPIRIT_EVENTS={
-  5:{tone:'caution',title:'最初の忠告',line:'またカードに問いかけるのかい。答えを急がず、少し考えてごらん。'},
-  10:{tone:'caution',title:'老婆のため息',line:'十度も尋ねれば、カードだって困ってしまうよ。'},
-  20:{tone:'uneasy',title:'不穏な気配',line:'まだ足りないのかい……。部屋の空気が変わってきたね。'},
+  5:{tone:'caution',title:'最初の忠告',line:'また占うのかい。答えはもう示されたはずだよ。何度も尋ねるものじゃない。'},
+  10:{tone:'caution',title:'老婆のため息',line:'何度尋ねても、運命が変わるわけではないよ。'},
+  20:{tone:'uneasy',title:'不穏な気配',line:'おやめ。カードはお前の不安を慰める道具じゃない。'},
   30:{tone:'angry',title:'精霊の怒り',line:'いい加減におし！　運命を試し続けるものじゃない！'},
-  50:{tone:'angry',title:'深まる闇',line:'何度も答えを変えようとしても、選ぶのはあんただよ。'},
-  100:{tone:'silent',title:'奇妙な沈黙',line:'……。老婆はしばらく黙り込み、ただこちらを見つめている。'},
-  1000:{tone:'secret',title:'精霊の降参',line:'千回！　もう参ったよ。今日はあんたの根気の勝ちだね！'}
+  50:{tone:'angry',title:'深まる闇',line:'お前は答えではなく、望む言葉だけを探している。'},
+  100:{tone:'silent',title:'奇妙な沈黙',line:'……もう、わたしから言うことはないよ。'},
+  1000:{tone:'secret',title:'精霊の降参',line:'……あんた、まだいたのかい。まったく、たいした執念だねえ！'}
 };
 function getPreviewCount(){try{const v=JSON.parse(localStorage.getItem(PHASE4_TEST_KEY)||'{}');return v.date===localDayKey()?Math.max(0,Number(v.count)||0):0}catch(_){return 0}}
 function setPreviewCount(count){try{localStorage.setItem(PHASE4_TEST_KEY,JSON.stringify({date:localDayKey(),count:Math.max(0,Math.floor(count))}))}catch(_){}updateReadingCounters()}
-function updateReadingCounters(){const node=$('#reading-counters');if(node)node.textContent=`本日 ${TEST_MODE?getPreviewCount():getDailyReadingState().count} 回 ／ 累計 ${getCompletedReadingTotal()} 回${TEST_MODE?'（開発プレビュー）':''}`}
-function spiritTier(count){return count>=100?'silent':count>=50?'angry':count>=20?'uneasy':count>=5?'caution':'normal'}
+function activeDailyCount(){return TEST_MODE?getPreviewCount():getDailyReadingState().count}
+function updateReadingCounters(){const node=$('#reading-counters');if(node)node.textContent=`本日の占い ${activeDailyCount()} 回${TEST_MODE?'（開発プレビュー）':''}`}
+function spiritTier(count){return count>=1000?'secret':count>=100?'silent':count>=50?'angry':count>=20?'uneasy':count>=5?'caution':'normal'}
 function updateSpiritMood(count){document.body.dataset.spiritMood=spiritTier(count)}
 function openSpiritEvent(count,continueReading){
   const e=SPIRIT_EVENTS[count];if(!e){continueReading();return}
@@ -91,7 +91,7 @@ function openSpiritEvent(count,continueReading){
   button.onclick=()=>{dialog.hidden=true;continueReading()};
 }
 function beginPreviewReading(){const count=getPreviewCount()+1;setPreviewCount(count);updateSpiritMood(count);openSpiritEvent(count,startActualReading)}
-function reversalChance(count){return Math.min(.7,.35+Math.max(0,count-4)*.004)}
+function reversalChance(count){return Math.min(.72,.35+Math.max(0,count-4)*.004)}
 function pickWeightedCard(pool,count){
   // Increasing frequency of ominous cards is a disclosed game mechanic, not a prediction.
   const dark=new Set([12,13,15,16,18]);const extra=Math.min(3,Math.max(0,count-4)*.025);
@@ -123,16 +123,7 @@ function registerReadingAttempt(){
   setDailyReadingCount(next);
   return next;
 }
-// 完了した占いの累計。既存の日別ゲートの試行回数とは別管理。
-function getCompletedReadingTotal(){
-  try{return Math.max(0,Number(localStorage.getItem(TOTAL_READING_KEY))||0)}catch(_){return 0}
-}
-function registerCompletedReading(){
-  // 結果画面を複数回開いても、同じカードの占いを重複計上しない。
-  if(state.readingCounted)return;
-  state.readingCounted=true;
-  try{localStorage.setItem(TOTAL_READING_KEY,String(getCompletedReadingTotal()+1))}catch(_){}
-}
+// 過去の結果・累計回数は保存しない。日別回数だけを演出に使用する。
 function startActualReading(){
   prepareDeck();
   go('draw');
@@ -177,7 +168,7 @@ $('#warning-stop').onclick=()=>{
 };
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function prepareDeck(){state.readingCounted=false;state.selected=[];state.visual={...VISUAL_THEMES[Math.floor(Math.random()*VISUAL_THEMES.length)],glow:'glow-soft',motion:'motion-sway'};applyVisual();state.pool=shuffle(TAROT_CARDS);const deck=$('#deck');deck.innerHTML='';const shown=state.pool.slice(0,13);shown.forEach((card,i)=>{const btn=document.createElement('button');btn.className='deck-card';btn.style.setProperty('--rot',`${(i-6)*2.1}deg`);btn.style.setProperty('--lift',`${Math.abs(i-6)*2}px`);btn.setAttribute('aria-label',`${i+1}枚目のカード`);btn.innerHTML='<img src="images/card-back.svg" alt="カードの裏面">';btn.onclick=()=>pick(card,btn);deck.appendChild(btn)});$('#draw-help').textContent=modes[state.mode].count===1?'直感で一枚選びます':'直感で三枚選びます';updateStatus()}
-function pick(card,btn){if(state.selected.length>=modes[state.mode].count)return;const count=TEST_MODE?getPreviewCount():getDailyReadingState().count;state.selected.push({...card,reversed:Math.random()<reversalChance(TEST_MODE?count:1)});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}
+function pick(card,btn){if(state.selected.length>=modes[state.mode].count||btn.classList.contains('picked'))return;const count=activeDailyCount();const available=state.pool.filter(c=>!state.selected.some(p=>p.n===c.n));const drawn=count>=5?pickWeightedCard(available,count):card;state.selected.push({...drawn,reversed:Math.random()<reversalChance(count)});btn.classList.add('picked');updateStatus();if(state.selected.length===modes[state.mode].count)setTimeout(reveal,500)}
 function updateStatus(){const n=modes[state.mode].count;$('#selection-status').textContent=`${state.selected.length} / ${n} 枚を選択`}
 function reveal(){
   chooseVisual(state.selected[0]);
@@ -231,7 +222,6 @@ function reveal(){
 $('#show-result').onclick=()=>{
   try{
     renderResult();
-    registerCompletedReading();
     updateReadingCounters();
     go('result');
   }catch(err){
@@ -282,11 +272,13 @@ function setupThreeCarousel(){
   const restart=()=>{clearInterval(resultCarouselTimer);resultCarouselTimer=setInterval(()=>show(active+1),5200)};
   stage.querySelector('.carousel-prev').onclick=()=>{show(active-1);restart()};stage.querySelector('.carousel-next').onclick=()=>{show(active+1);restart()};dots.forEach((d,n)=>d.onclick=()=>{show(n);restart()});slides.forEach((el,n)=>el.onclick=()=>{if(n===active)openCardLightbox(state.selected[n]);else{show(n);restart()}});show(0);restart();
 }
+function repeatedReadingWarning(){const count=activeDailyCount();if(count<5)return '';return `<div class="reading-block spirit-advice"><h4>精霊からの戒め</h4><p>${count>=100?'何度問い直しても、答えが確かになるわけではありません。いったんカードを置き、自分の判断に戻りましょう。':count>=30?'繰り返し占うほど、警告の色が濃くなります。望む答えを探すより、すでに得た示唆を振り返りましょう。':'答えを急がず、一度の占いを大切にしてください。繰り返すほどカードの抽選傾向は警告寄りに変化します。'}</p></div>`}
 function renderResult(){
   if(resultCarouselTimer){clearInterval(resultCarouselTimer);resultCarouselTimer=null}
   const body=$('#result-body');
   if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="v53-single"><button type="button" class="art-button" data-card-index="0" aria-label="カードを拡大表示">${cardArt(c,'result-art-large')}<span class="single-card-hitarea" aria-hidden="true"></span></button><div class="single-summary"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div><div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${c.action}</p></div>`;setupResultArtClicks()}
   else{body.innerHTML=`<div class="three-carousel" aria-label="過去・現在・未来のカード"><button class="carousel-nav carousel-prev" aria-label="前のカード">‹</button><div class="carousel-stage">${state.selected.map((c,i)=>`<button class="carousel-card" data-index="${i}" aria-label="${modes[state.mode].positions[i]} ${c.jp}">${cardArt(c,'carousel-art')}<span>${modes[state.mode].positions[i]}</span></button>`).join('')}</div><button class="carousel-nav carousel-next" aria-label="次のカード">›</button><div class="carousel-dots">${state.selected.map((_,i)=>`<button class="carousel-dot" aria-label="${i+1}枚目"></button>`).join('')}</div></div><div class="carousel-reading"></div><div class="reading-block"><h4>三枚をつなぐ物語</h4><p>${threeStory()}</p></div><div class="reading-block"><h4>次の一歩</h4><p>${state.selected[1].action}</p></div>`;setupThreeCarousel()}
+  body.insertAdjacentHTML('beforeend',repeatedReadingWarning());
 }
 function threeStory(){const [a,b,c]=state.selected;return `過去には「${a.jp}」が示す${key(a)}の流れがありました。現在は「${b.jp}」の${key(b)}が中心にあります。この流れを受け止めることで、未来の「${c.jp}」が示す${key(c)}へ向かいます。未来は決定ではなく、今の選び方によって形を変える余地があります。`}
 $('#again').onclick=()=>{state.selected=[];document.body.classList.remove('v4-reading');go('modes')};
@@ -299,7 +291,7 @@ const canvas=$('#stars'),ctx=canvas.getContext('2d');let stars=[];function resiz
 
 // Developer preview controls: only available with ?test=1.
 if(TEST_MODE){
-  const panel=$('#phase4-preview');if(panel){panel.hidden=false;$('#phase4-set-count').onclick=()=>{const n=Number($('#phase4-count-input').value);if(Number.isFinite(n)){setPreviewCount(n);updateSpiritMood(n)}};$('#phase4-reset').onclick=()=>{setPreviewCount(0);updateSpiritMood(0)}}
+  const panel=$('#phase4-preview');if(panel){panel.hidden=false;$('#phase4-set-count').onclick=()=>{const n=Number($('#phase4-count-input').value);if(Number.isFinite(n)){const count=Math.max(0,Math.floor(n));setPreviewCount(count);updateSpiritMood(count);if(SPIRIT_EVENTS[count])openSpiritEvent(count,()=>{})}};$('#phase4-reset').onclick=()=>{setPreviewCount(0);updateSpiritMood(0)}}
   updateSpiritMood(getPreviewCount());
 }
 updateReadingCounters();

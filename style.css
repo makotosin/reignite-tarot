@@ -576,3 +576,23 @@ body[data-spirit-mood="uneasy"] .atmosphere{filter:brightness(.75)}body[data-spi
 @keyframes spiritBreath{50%{opacity:.65;transform:scale(1.05)}}
 @keyframes spiritLightning{0%,90%,94%,100%{filter:brightness(1)}91%,93%{filter:brightness(1.9)}}
 @media(prefers-reduced-motion:reduce){.spirit-event,.spirit-portrait{animation:none!important}}
+
+/* Phase 4: portrait illumination instead of symbolic glyphs */
+.spirit-portrait{position:relative;width:min(72vw,290px);height:240px;margin:0 auto;overflow:hidden;border-radius:48% 48% 8px 8px;box-shadow:0 0 45px rgba(213,162,105,.18);animation:spiritBreath 4s ease-in-out infinite}
+.spirit-portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 19%;filter:brightness(.82) saturate(.75);mask-image:linear-gradient(to bottom,#000 75%,transparent 100%);animation:spiritReveal 1.6s ease-out both}
+.spirit-event[data-tone="angry"] .spirit-portrait img{filter:brightness(.67) sepia(.5) saturate(1.4)}
+.spirit-event[data-tone="silent"] .spirit-portrait img{filter:brightness(.34) grayscale(.7)}
+.spirit-event[data-tone="secret"] .spirit-portrait img{filter:brightness(1.12) sepia(.2)}
+@keyframes spiritReveal{from{opacity:0;filter:brightness(0);transform:scale(1.08)}to{opacity:1;transform:scale(1)}}
+@media(max-height:680px){.spirit-portrait{height:170px}.spirit-scene{padding:1rem}}
+@media(prefers-reduced-motion:reduce){.spirit-portrait img{animation:none!important}}
+
+/* Phase 4: one-day-only spirit escalation, no geometrical overlays */
+body[data-spirit-mood="caution"] .atmosphere{filter:brightness(.91)}
+body[data-spirit-mood="uneasy"] .atmosphere{filter:brightness(.68) saturate(.72)}
+body[data-spirit-mood="angry"] .atmosphere{filter:brightness(.49) sepia(.55) saturate(1.25)}
+body[data-spirit-mood="silent"] .atmosphere{filter:brightness(.27) grayscale(.65)}
+body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
+.spirit-event[data-tone="uneasy"] .spirit-portrait img{filter:brightness(.56) sepia(.38)}
+.spirit-event[data-tone="caution"] .spirit-portrait img{filter:brightness(.87) sepia(.12)}
+.spirit-advice{border-left:2px solid #9d6a70;background:rgba(55,13,27,.22)}

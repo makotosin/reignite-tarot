@@ -23,9 +23,9 @@
   <main class="app-shell">
     <div id="reading-counters" class="reading-counters" aria-live="polite"></div>
   <div id="spirit-event" class="spirit-event" role="dialog" aria-modal="true" aria-labelledby="spirit-title" hidden>
-    <div class="spirit-scene"><div class="spirit-portrait" aria-hidden="true">☾</div><p id="spirit-count"></p><h2 id="spirit-title"></h2><p id="spirit-line"></p><button type="button" id="spirit-continue" class="primary">言葉を受け取り、続ける</button></div>
+    <div class="spirit-scene"><div class="spirit-portrait" aria-hidden="true"><img src="spirit-elder.webp" alt=""></div><p id="spirit-count"></p><h2 id="spirit-title"></h2><p id="spirit-line"></p><button type="button" id="spirit-continue" class="primary">言葉を受け取り、続ける</button></div>
   </div>
-  <div id="phase4-preview" class="phase4-preview" hidden><label for="phase4-count-input">開発用：本日の回数を設定</label><input id="phase4-count-input" type="number" min="0" max="9999" value="4"><button id="phase4-set-count" type="button">設定</button><button id="phase4-reset" type="button">リセット</button></div>
+  <div id="phase4-preview" class="phase4-preview" hidden><label for="phase4-count-input">開発用：本日の回数を設定（累計ではありません）</label><input id="phase4-count-input" type="number" min="0" max="9999" value="4"><button id="phase4-set-count" type="button">設定</button><button id="phase4-reset" type="button">リセット</button></div>
   <section id="home" class="screen active hero" aria-labelledby="main-title">
       <div class="sigil" aria-hidden="true">✦</div>
       <p class="eyebrow">スキ3000突破記念・読者無料サービス</p>
@@ -112,6 +112,6 @@
 
   <footer>© 人生再点火タロット <span class="version-badge">Effects v5.4.3 / Phase 2</span></footer>
   <script src="data/cards.js?v=5.4.0"></script>
-  <script src="app.js?v=phase4-preview"></script>
+  <script src="app.js?v=phase4-daily-v2"></script>
 </body>
 </html>
