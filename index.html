@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=phase4-draw-elder-2" />
+  <link rel="stylesheet" href="style.css?v=phase5-mock-1" />
 </head>
 <body>
   <canvas id="stars" aria-hidden="true"></canvas>
@@ -25,6 +25,9 @@
   <div id="spirit-event" class="spirit-event" role="dialog" aria-modal="true" aria-labelledby="spirit-title" hidden>
     <div class="spirit-scene"><div class="spirit-portrait" aria-hidden="true"><img src="spirit-elder.webp" alt=""></div><p id="spirit-count"></p><h2 id="spirit-title"></h2><p id="spirit-line"></p><button type="button" id="spirit-continue" class="primary">言葉を受け取り、続ける</button></div>
   </div>
+  <div class="phase5-strip" id="phase5-status" aria-live="polite"></div>
+  <div class="phase5-dev" id="phase5-dev" hidden><button type="button" id="phase5-free">開発用：無料会員</button><button type="button" id="phase5-paid">開発用：有料会員</button></div>
+  <div class="phase5-gate" id="phase5-gate" role="dialog" aria-modal="true" aria-labelledby="phase5-gate-title" hidden><div class="phase5-gate-box"><h2 id="phase5-gate-title"></h2><p id="phase5-gate-copy"></p><div id="phase5-gate-actions" class="actions"></div></div></div>
   <div id="phase4-preview" class="phase4-preview" hidden><label for="phase4-count-input">開発用：本日の回数を設定（累計ではありません）</label><input id="phase4-count-input" type="number" min="0" max="9999" value="4"><button id="phase4-set-count" type="button">設定</button><button id="phase4-reset" type="button">リセット</button></div>
   <section id="home" class="screen active hero" aria-labelledby="main-title">
       <div class="sigil" aria-hidden="true">✦</div>
@@ -113,6 +116,6 @@
 
   <footer>© 人生再点火タロット <span class="version-badge">Effects v5.4.3 / Phase 2</span></footer>
   <script src="data/cards.js?v=5.4.0"></script>
-  <script src="app.js?v=phase4-draw-elder-1"></script>
+  <script src="app.js?v=phase5-mock-1"></script>
 </body>
 </html>

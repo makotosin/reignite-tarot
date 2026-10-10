@@ -669,3 +669,13 @@ body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
 #draw[data-elder-stage="30"] .draw-elder-background img{opacity:.74}
 #draw[data-elder-stage="50"] .draw-elder-background img{opacity:.8}
 #draw[data-elder-stage="100"] .draw-elder-background img{opacity:.85}
+
+/* Phase 5 simulated entitlement gate */
+.phase5-strip{position:relative;z-index:25;text-align:center;font-size:12px;color:#d5c19a;padding:4px 8px}
+.phase5-dev:not([hidden]){display:flex;position:relative;z-index:25;justify-content:center;gap:8px;flex-wrap:wrap;padding:5px}
+.phase5-dev button{background:#302338;color:#f5e6ca;border:1px solid #ac8d5a;border-radius:8px;padding:8px}
+.phase5-gate[hidden]{display:none!important}
+.phase5-gate{position:fixed;inset:0;z-index:99999;background:rgba(4,3,10,.88);display:flex;align-items:center;justify-content:center;padding:20px}
+.phase5-gate-box{max-width:440px;width:100%;padding:26px 20px;background:linear-gradient(#24192d,#0e0b16);border:1px solid #b7975c;border-radius:14px;text-align:center;color:#f1e7da}
+.phase5-gate-box h2{font-size:22px}.phase5-gate-box p{line-height:1.8}.phase5-gate-box .actions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.phase5-gate-box button{min-height:48px}

@@ -142,30 +142,21 @@ function startActualReading(){
   prepareDeck();
   go('draw');
 }
+// Phase 5: local simulation ONLY. No payment or advertisement SDK is connected.
+const PHASE5_MOCK_KEY='reigniteTarotPhase5MockV1';
+function mockSubscriber(){try{return localStorage.getItem(PHASE5_MOCK_KEY)==='subscriber'}catch(_){return false}}
+function mockAdsUnlocked(){try{const x=JSON.parse(localStorage.getItem(PHASE5_MOCK_KEY+'Ads')||'{}');return x.date===localDayKey()?Math.max(0,Math.floor(x.count)||0):0}catch(_){return 0}}
+function setMockAdsUnlocked(n){try{localStorage.setItem(PHASE5_MOCK_KEY+'Ads',JSON.stringify({date:localDayKey(),count:n}))}catch(_){}}
+function phase5Status(){const count=activeDailyCount(),sub=mockSubscriber();const el=$('#phase5-status');if(el)el.textContent=TEST_MODE?`開発用：本日 ${count} 回・${sub?'有料会員（模擬）':'無料会員（模擬）'}`:`本日 ${count} 回・${sub?'有料会員（模擬）':'無料会員（模擬）'}`}
+function phase5SetSubscriber(value){try{localStorage.setItem(PHASE5_MOCK_KEY,value?'subscriber':'free')}catch(_){}phase5Status()}
+function phase5Dialog(title,message,buttons){const panel=$('#phase5-gate');if(!panel)return;$('#phase5-gate-title').textContent=title;$('#phase5-gate-copy').textContent=message;const actions=$('#phase5-gate-actions');actions.replaceChildren();for(const [label,fn] of buttons){const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent=label;btn.onclick=()=>{panel.hidden=true;fn()};actions.appendChild(btn)}panel.hidden=false}
+function phase5Proceed(){if(TEST_MODE){beginPreviewReading()}else{const n=registerReadingAttempt();updateReadingCounters();updateSpiritMood(n);openSpiritEvent(n,startActualReading)}phase5Status()}
 function handleDailyReadingGate(){
-  if(TEST_MODE){
-    beginPreviewReading();
-    return;
-  }
-  const daily=getDailyReadingState();
-  if(daily.count===0){
-    registerReadingAttempt();
-    startActualReading();
-    return;
-  }
-  if(daily.count===1){
-    document.body.classList.add('daily-omen');
-    go('daily-warning');
-    return;
-  }
-  if(daily.count===2){
-    registerReadingAttempt();
-    document.body.classList.add('daily-omen','daily-silence');
-    go('daily-silence');
-    return;
-  }
-  document.body.classList.add('daily-omen','daily-closed');
-  go('daily-closed');
+  const count=activeDailyCount();const next=count+1;
+  if(mockSubscriber()||next===1){phase5Proceed();return}
+  if(next>=5){phase5Dialog('本日の無料回数は終了しました','5回目以降は月額300円の有料プランが必要です。現在は購入できません。これは開発用の模擬画面です。', [['戻る',()=>go('question')],['開発用：有料会員に切替',()=>{phase5SetSubscriber(true);phase5Proceed()}]]);return}
+  if(mockAdsUnlocked()>=next){phase5Proceed();return}
+  phase5Dialog('広告を視聴して占う',`${next}回目の占いにはリワード広告の視聴が必要です。現在は広告SDK未接続のため、下のボタンで視聴完了を模擬します。`,[['戻る',()=>go('question')],['開発用：広告視聴完了を模擬',()=>{setMockAdsUnlocked(next);phase5Proceed()}]]);
 }
 function go(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));updateReadingCounters();scrollTo({top:0,behavior:'smooth'});} 
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
@@ -309,3 +300,7 @@ if(TEST_MODE){
   updateSpiritMood(getPreviewCount());
 }
 updateReadingCounters();
+
+// Development-only switches. Production builds must remove these controls and mock entitlements.
+if(TEST_MODE){const p=$('#phase5-dev');if(p){p.hidden=false;$('#phase5-free').onclick=()=>phase5SetSubscriber(false);$('#phase5-paid').onclick=()=>phase5SetSubscriber(true)}}
+phase5Status();

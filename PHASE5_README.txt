@@ -1,0 +1,1 @@
+Phase 5 development simulation only. No real ads or purchases. Daily count 1 free, 2-4 mock rewarded, 5+ mock subscription. Test mode ?test=1 allows toggling simulated subscription. Do not publish as a commercial payment implementation.
