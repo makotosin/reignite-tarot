@@ -20,57 +20,28 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ volume })); } catch (_) {}
   }
 
-  let context = null;
-  function getContext() {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return null;
-    if (!context) context = new AudioContextClass();
-    return context;
-  }
-
-  async function unlockEffects() {
-    try {
-      const ctx = getContext();
-      if (ctx && ctx.state === 'suspended') await ctx.resume();
-    } catch (error) { console.warn('効果音の初期化に失敗しました', error); }
-  }
+  // Approved WAV effects. BGM controls and reading event hooks are unchanged.
+  const effectFiles = {
+    pick: 'audio/card_select.wav',
+    reveal: 'audio/card_reveal.wav',
+    spirit: 'audio/spirit_appearance.wav'
+  };
+  const effects = Object.fromEntries(Object.entries(effectFiles).map(([kind, path]) => {
+    const audio = new Audio(path);
+    audio.preload = 'auto';
+    return [kind, audio];
+  }));
 
   function sound(kind) {
     if (!enabled || volume <= 0) return;
+    const effect = effects[kind];
+    if (!effect) return;
     try {
-      const ctx = getContext();
-      if (!ctx) return;
-      if (ctx.state !== 'running') {
-        ctx.resume().then(() => { if (enabled) playTone(ctx, kind); }).catch(() => {});
-      } else {
-        playTone(ctx, kind);
-      }
+      // Clone to support repeated card actions without cutting off previous audio.
+      const instance = effect.cloneNode(true);
+      instance.volume = Math.min(1, volume * (kind === 'spirit' ? 1.3 : 0.9));
+      instance.play().catch(error => console.warn('効果音を再生できませんでした', error));
     } catch (error) { console.warn('効果音を再生できませんでした', error); }
-  }
-
-  function playTone(ctx, kind) {
-    if (!enabled || volume <= 0 || ctx.state !== 'running') return;
-    const now = ctx.currentTime;
-    const gain = ctx.createGain();
-    gain.connect(ctx.destination);
-    // Slightly more audible than the previous version, still restrained.
-    const level = Math.min(0.14, volume * 0.3);
-    const settings = kind === 'pick'
-      ? { frequency: 880, end: 1180, duration: 0.26, type: 'sine' }
-      : kind === 'reveal'
-        ? { frequency: 240, end: 460, duration: 0.95, type: 'sine' }
-        : { frequency: 145, end: 82, duration: 1.6, type: 'triangle' };
-    const osc = ctx.createOscillator();
-    osc.type = settings.type;
-    osc.frequency.setValueAtTime(settings.frequency, now);
-    osc.frequency.exponentialRampToValueAtTime(settings.end, now + settings.duration);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, level), now + 0.025);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + settings.duration);
-    osc.connect(gain);
-    osc.start(now);
-    osc.stop(now + settings.duration + 0.02);
-    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
   }
 
   function mountEffects() {
@@ -131,7 +102,6 @@
       try {
         await music.play();
         enabled = true;
-        await unlockEffects();
       } catch (error) {
         enabled = false;
         music.pause();
