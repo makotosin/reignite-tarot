@@ -1,3 +1,45 @@
+コンテンツへスキップ
+マコトシン
+リイグナイトタロット
+リポジトリナビゲーション
+コード
+問題
+プルリクエスト
+行動
+プロジェクト
+ウィキ
+セキュリティと品質
+インサイト
+設定
+ファイル
+ファイルへ移動
+t
+T
+オーディオ
+データ
+画像
+カードガイドのREADME.txt
+PHASE5_README.txt
+README.md
+app.js
+オーディオ.js
+index.html
+スピリット・エルダー・オミナス.webp
+スピリットエルダー.webp
+style.css
+リイグナイトタロット
+/style.css
+マコトシン
+マコトシン
+アップロードによりファイルを追加する
+6f7efe2
+ ・ 
+3時間前
+
+コード
+
+非難
+693行（624箇所） · 60.2KB
 :root{--bg:#070611;--panel:rgba(15,12,31,.78);--ink:#f2ead7;--muted:#b9aec7;--gold:#d9b66f;--gold2:#8f6a2e;--violet:#6f5ca8;--line:rgba(217,182,111,.35)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 50% 15%,#21163d 0,#0b0817 42%,#04030a 100%);font-family:"Shippori Mincho",serif;overflow-x:hidden}button,textarea{font:inherit}button{cursor:pointer}#stars{position:fixed;inset:0;width:100%;height:100%;z-index:-4}.mist{position:fixed;border-radius:50%;filter:blur(70px);opacity:.18;z-index:-3;animation:drift 18s ease-in-out infinite alternate}.mist-a{width:420px;height:420px;background:#6b4aa4;top:-80px;left:-100px}.mist-b{width:380px;height:380px;background:#245a72;bottom:-100px;right:-80px;animation-delay:-8s}@keyframes drift{to{transform:translate(80px,50px) scale(1.18)}}
 .app-shell{width:min(1100px,100%);margin:auto;padding:34px 20px 70px;min-height:calc(100vh - 46px);display:grid;place-items:center}.screen{display:none;width:100%;max-width:960px;text-align:center;animation:fade .7s ease}.screen.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}.hero{max-width:760px}.sigil{font-size:54px;color:var(--gold);filter:drop-shadow(0 0 18px rgba(217,182,111,.55));animation:pulse 3s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.08);opacity:.72}}.eyebrow{font-family:"Cormorant Garamond",serif;letter-spacing:.22em;color:var(--gold);font-size:.86rem;margin:0 0 16px}h1,h2{font-weight:600;margin:0;text-shadow:0 4px 30px rgba(0,0,0,.55)}h1{font-size:clamp(3rem,10vw,6.4rem);line-height:.9;letter-spacing:.08em}h1 span{font-family:"Cormorant Garamond",serif;font-size:.74em;letter-spacing:.22em;color:var(--gold)}h2{font-size:clamp(1.8rem,5vw,3rem);margin-bottom:24px}.lead{line-height:2;color:#ded5e5;font-size:clamp(1rem,2.4vw,1.18rem);margin:28px auto 30px}.lead.compact{margin-top:-8px}.tiny,.share-note{font-size:.77rem;color:#8f879a;line-height:1.8;margin-top:25px}.primary,.secondary{border-radius:999px;padding:14px 30px;border:1px solid var(--gold);transition:.25s}.primary{background:linear-gradient(135deg,#e2c47f,#9a7134);color:#130e09;font-weight:700;box-shadow:0 8px 28px rgba(217,182,111,.22)}.primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(217,182,111,.35)}.secondary{background:transparent;color:var(--ink)}.secondary:hover{background:rgba(255,255,255,.06)}.back{position:absolute;left:24px;top:24px;border:1px solid var(--line);background:rgba(0,0,0,.18);color:var(--ink);border-radius:50%;width:42px;height:42px}.screen{position:relative}.mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.mode-card{min-height:150px;padding:24px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(33,25,58,.78),rgba(10,8,20,.88));color:var(--ink);border-radius:18px;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:inset 0 0 28px rgba(116,88,166,.08),0 14px 40px rgba(0,0,0,.2);transition:.25s}.mode-card:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:inset 0 0 34px rgba(217,182,111,.08),0 18px 46px rgba(0,0,0,.35)}.mode-card b{font-size:1.24rem;color:#f6ead0}.mode-card span{font-size:.9rem;color:var(--muted)}
@@ -691,3 +733,10 @@ body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
 .audio-volume-label{white-space:nowrap}
 .audio-volume{width:76px;accent-color:#d9b66f;cursor:pointer}
 @media(max-width:360px){.audio-controls{gap:5px;padding:5px 7px}.audio-volume{width:56px}}
+
+/* Fix: result artwork follows the single reversed flag (one-card and carousel).
+   Only the image rotates; frame, glow, and carousel motion stay unchanged. */
+.art-button .result-card-frame > img.reversed,
+.carousel-card .result-card-frame > img.reversed {
+  transform: rotate(180deg);
+}
