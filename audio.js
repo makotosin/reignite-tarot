@@ -14,7 +14,36 @@
       volume = Math.min(1, Math.max(0, saved.volume));
     }
   } catch (_) {}
-  music.volume = volume;
+  // Smoothly lower BGM only while the reveal bell is sounding.
+  let bgmMix = 1;
+  let fadeFrame = null;
+  let restoreTimer = null;
+  function applyMusicVolume() {
+    music.volume = Math.min(1, Math.max(0, volume * bgmMix));
+  }
+  function fadeMusic(target, durationMs) {
+    if (fadeFrame !== null) cancelAnimationFrame(fadeFrame);
+    const from = bgmMix;
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = t * t * (3 - 2 * t);
+      bgmMix = from + (target - from) * eased;
+      applyMusicVolume();
+      fadeFrame = t < 1 ? requestAnimationFrame(step) : null;
+    }
+    fadeFrame = requestAnimationFrame(step);
+  }
+  function duckForReveal() {
+    if (restoreTimer !== null) clearTimeout(restoreTimer);
+    fadeMusic(0.4, 200);
+    // Keep the bell audible, then gradually restore the original BGM level.
+    restoreTimer = setTimeout(() => {
+      restoreTimer = null;
+      fadeMusic(1, 1100);
+    }, 2600);
+  }
+  applyMusicVolume();
 
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ volume })); } catch (_) {}
@@ -36,6 +65,7 @@
     if (!enabled || volume <= 0) return;
     const effect = effects[kind];
     if (!effect) return;
+    if (kind === 'reveal') duckForReveal();
     try {
       // Clone to support repeated card actions without cutting off previous audio.
       const instance = effect.cloneNode(true);
@@ -96,6 +126,12 @@
       if (enabled) {
         enabled = false;
         music.pause();
+        if (restoreTimer !== null) clearTimeout(restoreTimer);
+        restoreTimer = null;
+        if (fadeFrame !== null) cancelAnimationFrame(fadeFrame);
+        fadeFrame = null;
+        bgmMix = 1;
+        applyMusicVolume();
         refresh();
         return;
       }
@@ -112,7 +148,7 @@
 
     slider.addEventListener('input', () => {
       volume = Number(slider.value) / 100;
-      music.volume = volume;
+      applyMusicVolume();
       save();
     });
 
