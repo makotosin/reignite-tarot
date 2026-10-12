@@ -682,3 +682,12 @@ body[data-spirit-mood="secret"] .atmosphere{filter:brightness(1.08) sepia(.16)}
 
 /* Card-specific pictorial guide (22 major arcana) */
 .card-guide{margin-top:20px;text-align:left}.card-guide .guide-label{font-size:.85rem;color:#d8b877;font-weight:700;margin:12px 0 5px}.card-guide>p{line-height:1.8}.guide-meanings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}.guide-meaning{border:1px solid rgba(210,185,125,.25);border-radius:10px;padding:13px;background:rgba(0,0,0,.19)}.guide-meaning.chosen{border-color:rgba(231,196,118,.8);background:rgba(175,133,56,.13)}.guide-meaning strong{color:#e6cb8b}.guide-meaning p{font-size:.91rem;line-height:1.75;margin:8px 0 0}@media(max-width:560px){.guide-meanings{grid-template-columns:1fr}}
+
+
+/* BGM controls - added without altering existing reading styles */
+.audio-controls{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:1000;display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(217,182,111,.48);border-radius:24px;background:rgba(9,7,22,.92);color:#f2ead7;box-shadow:0 4px 22px rgba(0,0,0,.4);font-size:12px;backdrop-filter:blur(8px)}
+.audio-toggle{min-width:60px;min-height:36px;padding:4px 8px;border:1px solid rgba(217,182,111,.5);border-radius:20px;background:rgba(217,182,111,.12);color:#e7cd92;font:inherit;cursor:pointer}
+.audio-toggle:focus-visible,.audio-volume:focus-visible{outline:2px solid #f5d990;outline-offset:3px}
+.audio-volume-label{white-space:nowrap}
+.audio-volume{width:76px;accent-color:#d9b66f;cursor:pointer}
+@media(max-width:360px){.audio-controls{gap:5px;padding:5px 7px}.audio-volume{width:56px}}
