@@ -1,4 +1,4 @@
-/* REIGNITE TAROT - optional background music controller */
+/* REIGNITE TAROT - background music and subtle sound effects */
 (() => {
   'use strict';
   const STORAGE_KEY = 'reigniteTarotAudioV1';
@@ -13,7 +13,6 @@
     if (typeof saved.volume === 'number' && Number.isFinite(saved.volume)) {
       volume = Math.min(1, Math.max(0, saved.volume));
     }
-    // Start muted on every launch; sound requires an explicit user action.
   } catch (_) {}
   music.volume = volume;
 
@@ -21,46 +20,65 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ volume })); } catch (_) {}
   }
 
-  // Subtle synthesized effects: no additional audio files required.
   let context = null;
+  function getContext() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!context) context = new AudioContextClass();
+    return context;
+  }
+
+  async function unlockEffects() {
+    try {
+      const ctx = getContext();
+      if (ctx && ctx.state === 'suspended') await ctx.resume();
+    } catch (error) { console.warn('効果音の初期化に失敗しました', error); }
+  }
+
   function sound(kind) {
     if (!enabled || volume <= 0) return;
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
     try {
-      if (!context) context = new AudioContextClass();
-      if (context.state !== 'running') { context.resume().catch(() => {}); return; }
-      const now = context.currentTime;
-      const gain = context.createGain();
-      gain.connect(context.destination);
-      const level = Math.min(0.075, volume * 0.16);
-      const settings = kind === 'pick'
-        ? { frequency: 880, end: 1180, duration: 0.22, type: 'sine' }
-        : kind === 'reveal'
-          ? { frequency: 240, end: 460, duration: 0.85, type: 'sine' }
-          : { frequency: 145, end: 82, duration: 1.5, type: 'triangle' };
-      const osc = context.createOscillator();
-      osc.type = settings.type;
-      osc.frequency.setValueAtTime(settings.frequency, now);
-      osc.frequency.exponentialRampToValueAtTime(settings.end, now + settings.duration);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, level), now + 0.025);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + settings.duration);
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + settings.duration + 0.02);
-      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      const ctx = getContext();
+      if (!ctx) return;
+      if (ctx.state !== 'running') {
+        ctx.resume().then(() => { if (enabled) playTone(ctx, kind); }).catch(() => {});
+      } else {
+        playTone(ctx, kind);
+      }
     } catch (error) { console.warn('効果音を再生できませんでした', error); }
   }
 
+  function playTone(ctx, kind) {
+    if (!enabled || volume <= 0 || ctx.state !== 'running') return;
+    const now = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    // Slightly more audible than the previous version, still restrained.
+    const level = Math.min(0.14, volume * 0.3);
+    const settings = kind === 'pick'
+      ? { frequency: 880, end: 1180, duration: 0.26, type: 'sine' }
+      : kind === 'reveal'
+        ? { frequency: 240, end: 460, duration: 0.95, type: 'sine' }
+        : { frequency: 145, end: 82, duration: 1.6, type: 'triangle' };
+    const osc = ctx.createOscillator();
+    osc.type = settings.type;
+    osc.frequency.setValueAtTime(settings.frequency, now);
+    osc.frequency.exponentialRampToValueAtTime(settings.end, now + settings.duration);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, level), now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + settings.duration);
+    osc.connect(gain);
+    osc.start(now);
+    osc.stop(now + settings.duration + 0.02);
+    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+  }
+
   function mountEffects() {
-    // Capture card clicks without changing the existing reading logic.
     document.addEventListener('click', event => {
       const card = event.target.closest?.('.deck-card');
       if (card && !card.classList.contains('picked') && !card.disabled) sound('pick');
     }, true);
 
-    // The reading script opens cards asynchronously, so watch its CSS state.
     const revealRoot = document.getElementById('revealed-cards');
     if (revealRoot) {
       const revealed = new WeakSet();
@@ -113,9 +131,10 @@
       try {
         await music.play();
         enabled = true;
-        if (context && context.state === 'suspended') context.resume().catch(() => {});
+        await unlockEffects();
       } catch (error) {
         enabled = false;
+        music.pause();
         console.warn('BGMを再生できませんでした', error);
       }
       refresh();
