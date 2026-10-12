@@ -258,12 +258,35 @@ function readingVariant(c){
   const entry=READING_VARIANTS[Number(c.n)];
   return entry?.[c.reversed?'r':'u']?.[c.readingGrade??1]||mainMessage(c);
 }
+// 警告段階でもカードごとの象徴に沿った行動を提示する。
+const CAUTION_ACTIONS = [
+ ['新しい話に飛びつく前に、必要な準備と約束を紙に書き出しましょう。','大きな決断は今日は保留し、危険や負担を一つずつ確認してください。'],
+ ['今できることを一つに絞り、確実に仕上げましょう。','無理な約束を増やさず、事実と実力を確かめてください。'],
+ ['直感だけで決めず、裏付けとなる事実を確かめましょう。','憶測に基づく判断を避け、信頼できる人に相談してください。'],
+ ['人の世話をする時間と自分を休ませる時間を分けましょう。','出費や負担を見直し、無理な引き受けを断ってください。'],
+ ['相手の意見を最後まで聞き、譲れる点を探しましょう。','力で押し切らず、責任と役割を整理して対話してください。'],
+ ['助言を受けたら、その理由も自分で確かめましょう。','肩書きや権威だけで判断せず、別の情報源にも当たってください。'],
+ ['相手に合わせる前に、自分の希望を言葉にしましょう。','曖昧な約束は放置せず、互いの意思を確認してください。'],
+ ['進む速さを落とし、周囲と目標を確認しましょう。','強引な前進をやめ、計画の安全性を見直してください。'],
+ ['疲れを感じたら、休む時間を予定に入れましょう。','一人で抱え込まず、信頼できる人に助けを求めてください。'],
+ ['一人で考えた結論を、誰かに話してみましょう。','孤立したまま決めず、外からの視点を取り入れてください。'],
+ ['予定が変わる場合の代案を一つ用意しましょう。','偶然に任せず、重要な予定や備えを点検してください。'],
+ ['自分に都合の悪い事実も含めて整理しましょう。','結論を急がず、記録と根拠をもう一度確認してください。'],
+ ['我慢を続ける理由と、その期限を見直しましょう。','無理な犠牲を当然とせず、負担を減らす方法を探してください。'],
+ ['終わらせることと残すことを分けて整理しましょう。','過去に固執せず、今守るべき生活や関係を優先してください。'],
+ ['予定を詰め込みすぎず、時間の配分を整えましょう。','極端な変更を避け、まず負担を減らしてください。'],
+ ['惰性で続けている習慣を一つ見直しましょう。','誘惑から距離を取り、必要なら周囲の支援を頼ってください。'],
+ ['気になっている問題を一つ挙げ、対処の順番を決めましょう。','無理に現状を守ろうとせず、安全と生活の土台を優先してください。'],
+ ['理想に近づくため、今日できる現実的な一歩を決めましょう。','期待だけで動かず、必要な条件を確かめてください。'],
+ ['不安と事実を分けてメモしてみましょう。','確証のない話で決めず、状況が明らかになるまで待ちましょう。'],
+ ['小さな成果を確かめながら、無理のない予定を立てましょう。','無理に明るく振る舞わず、休息と再点検を優先してください。'],
+ ['過去の後悔と、今できることを切り分けましょう。','自分を責め続けず、必要なら人の力を借りてください。'],
+ ['完成に必要な作業を絞り、期限を決めましょう。','完璧を追い続けず、現実的な区切りをつけてください。']
+];
 function readingAction(c){
   const grade=c.readingGrade??1;
-  if(grade===0)return c.action;
-  if(grade===1)return c.action;
-  if(grade===2)return '急いで結論を出さず、今日できる確認を一つだけ行ってください。';
-  return '大きな決断を急がず、状況を整理して信頼できる人にも相談してください。';
+  if(grade<2)return c.action;
+  return CAUTION_ACTIONS[Number(c.n)]?.[grade-2]||c.action;
 }
 function overallGrade(){
   if(!state.selected.length)return 1;
@@ -277,11 +300,10 @@ function testGradeMarkup(){
 }
 
 function interpret(c){
-  const position=modes[state.mode]?.positions?.[0]||'今回の兆し';
   const message=readingVariant(c);
-  if(state.mode==='answer')return `${position}として現れた「${c.jp}」は、${message} 今の状況に照らし、選択を一つずつ確かめてみてください。`;
-  if(state.mode==='reignite')return `${position}として現れた「${c.jp}」は、${message} ここから始められる一歩を探してみましょう。`;
-  return `${position}として現れた「${c.jp}」は、${message} 今日の出来事と重ねて、静かに考えてみてください。`;
+  if(state.mode==='answer')return `問いに向き合うあなたへ、「${c.jp}」が伝えるのは次のことです。${message}`;
+  if(state.mode==='reignite')return `これからの人生を考えるあなたに、「${c.jp}」はこう語りかけています。${message}`;
+  return `今日のあなたに、「${c.jp}」はこんなことを伝えています。${message}`;
 }
 
 const CARD_GUIDE=[{"art":"崖の上を歩く旅人と小さな白い動物。足元の断崖と遠くの光が、未知への旅立ちを表します。","upright":"自由な出発、冒険、可能性。先入観を捨てて新しい一歩を踏み出すとき。","reversed":"軽率、準備不足、現実逃避。勢いだけで進まず、足元を確かめる必要があります。"},{"art":"卓上の道具を前に立つ魔術師。頭上の光と掲げた手が、意志を現実へ結びつける力を示します。","upright":"創造力、技術、実行力。持っている力を使い、考えを形にする好機。","reversed":"力の空回り、欺瞞、自信不足。手段や動機を見直す必要があります。"},{"art":"二本の柱の間に座る女教皇。書物と月の意匠は、静かな知恵と隠された真実の象徴です。","upright":"直感、沈黙、洞察。表面に現れない気配を慎重に読み取るとき。","reversed":"思い込み、秘密、直感の鈍り。感情に流されず事実を確かめましょう。"},{"art":"豊かな緑と実りに囲まれて座る女帝。自然と穏やかな光が、生命を育む力を表します。","upright":"豊かさ、愛情、成長。育ててきたものが実を結ぶ兆し。","reversed":"過保護、浪費、停滞。与えることと自分を守ることの均衡が必要です。"},{"art":"石の玉座に座る皇帝。威厳ある衣装と堅固な建築が、秩序と責任を象徴します。","upright":"統率、安定、責任。明確な方針と着実な行動が力になります。","reversed":"頑固さ、支配、融通の利かなさ。強さだけで押し切らない姿勢が大切です。"},{"art":"高い座にある教皇と、その前にひざまずく人々。伝統と教えを受け継ぐ場面です。","upright":"学び、信頼、伝統。先人の知恵や誠実な助言が支えになります。","reversed":"形式への固執、盲従、価値観の衝突。自分で考える余地を持ちましょう。"},{"art":"光をまとった天使の下に向き合う二人。庭園の緑は、愛と選択の可能性を示します。","upright":"結びつき、調和、選択。心から納得できる関係や決断を大切に。","reversed":"すれ違い、迷い、不一致。気持ちと行動のずれを見つめ直すとき。"},{"art":"二頭の馬に引かれる戦車と堂々とした戦士。前へ進む勢いと、それを制御する意志の象徴です。","upright":"前進、勝利、決断。方向を定め、迷わず行動する力があります。","reversed":"暴走、焦り、方向喪失。勢いを抑え、目的を確認する必要があります。"},{"art":"女性が獅子に静かに触れる場面。力でねじ伏せず、優しさで本能を鎮める姿です。","upright":"勇気、忍耐、慈愛。穏やかな強さが困難を乗り越える鍵。","reversed":"自信喪失、感情の暴走、無理。自分を追い詰めず心を整えましょう。"},{"art":"雪深い山道で灯火を掲げる老人。暗闇を照らす小さな光は、内なる知恵を示します。","upright":"内省、探究、慎重さ。静かに考えることで答えが見えてきます。","reversed":"孤立、閉塞、考えすぎ。独りで抱え込まず外の声にも耳を傾けて。"},{"art":"雲間に浮かぶ巨大な車輪と周囲の存在。絶えず巡る運命と、変化の大きさを描いています。","upright":"転機、好機、循環。流れの変化を受け入れることで道が開けます。","reversed":"停滞、タイミングのずれ、抵抗。無理に動かず機を待つ判断も必要です。"},{"art":"剣と天秤を手にした人物が玉座に座る姿。公正な判断と行為の結果を象徴します。","upright":"公平、均衡、責任。感情だけでなく事実に基づく判断が重要です。","reversed":"偏り、不公平、判断ミス。自分に都合のよい見方を避けましょう。"},{"art":"木の枝から逆さに吊られた人物。静かな表情と逆転した視界が、見方の転換を表します。","upright":"忍耐、受容、発想の転換。立ち止まることで新しい意味に気づきます。","reversed":"徒労、執着、身動きの取れなさ。犠牲を続ける理由を問い直して。"},{"art":"黒い馬に乗る骸骨の騎士。暗い景色を進む姿は、避けられない終わりと変容の象徴です。","upright":"終結、転換、再生。古いものを手放し、新しい段階へ進むとき。","reversed":"変化への抵抗、未練、停滞。終わったことを抱え続けていないか見直しましょう。"},{"art":"翼のある人物が二つの器の間で水を移しています。異なるものを混ぜ合わせる調和の姿です。","upright":"節度、調和、回復。急がず少しずつ整えることが実を結びます。","reversed":"不均衡、極端、焦り。生活や気持ちの配分を立て直しましょう。"},{"art":"暗い玉座に座る悪魔と、足元につながれた人々。恐れや欲望による束縛を表します。","upright":"執着、誘惑、依存。何に縛られているのか自覚することが第一歩。","reversed":"束縛からの解放、気づき。古い依存を断ち切るきっかけが訪れます。"},{"art":"稲妻に打たれ崩れる高い塔。激しい光と落下する破片は、突然の変化を示します。","upright":"衝撃、崩壊、真実の露見。古い前提が崩れ、新しい土台が必要に。","reversed":"変化の先延ばし、内面の動揺。小さな兆候を見逃さないことが大切です。"},{"art":"星の輝く夜、水辺に身をかがめる女性。静かな水面と星明かりは、希望と癒やしの象徴です。","upright":"希望、回復、ひらめき。未来を信じる気持ちが少しずつ戻ります。","reversed":"失望、不安、自信の低下。遠い理想だけでなく身近な光を探して。"},{"art":"大きな月の下に続く道と水辺の生き物。薄明かりの景色が、不確かさと無意識を表します。","upright":"直感、幻想、不安。見えていない事情を慎重に探る必要があります。","reversed":"混乱の収束、誤解の解消。曖昧だったことが徐々に明らかになります。"},{"art":"輝く太陽の下に立つ人物と花々。明るい光が、生命力と喜びを満たしています。","upright":"成功、活力、祝福。素直な喜びや成果を受け取れるとき。","reversed":"一時的な陰り、空回り。焦らず自信と明るさを取り戻しましょう。"},{"art":"天使が空から呼びかけ、地上の人々が応える場面。目覚めと新たな判断の象徴です。","upright":"覚醒、再評価、再出発。過去を見直し、新たな決断を下す機会。","reversed":"決断の先延ばし、後悔、自己否定。過去に縛られず前を向きましょう。"},{"art":"光の輪の中心に立つ人物と四隅を囲む存在。ひとつの旅が完成する姿を表します。","upright":"完成、達成、統合。努力がまとまり、次の段階へ進む準備が整います。","reversed":"未完成、停滞、達成感の不足。最後の仕上げに目を向けましょう。"}];
@@ -318,7 +340,7 @@ function repeatedReadingWarning(){const count=activeDailyCount();if(count<5)retu
 function renderResult(){
   if(resultCarouselTimer){clearInterval(resultCarouselTimer);resultCarouselTimer=null}
   const body=$('#result-body');
-  if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="v53-single"><button type="button" class="art-button" data-card-index="0" aria-label="カードを拡大表示">${cardArt(c,'result-art-large')}<span class="single-card-hitarea" aria-hidden="true"></span></button><div class="single-summary"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${readingVariant(c)}</p></div></div>${cardGuide(c)}<div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${readingAction(c)}</p></div>`;setupResultArtClicks()}
+  if(state.selected.length===1){const c=state.selected[0];body.innerHTML=`<div class="v53-single"><button type="button" class="art-button" data-card-index="0" aria-label="カードを拡大表示">${cardArt(c,'result-art-large')}<span class="single-card-hitarea" aria-hidden="true"></span></button><div class="single-summary"><h3>${c.jp}</h3><div class="orientation">${c.en}・${orientation(c)}</div><p><b>${key(c)}</b></p><p>${mainMessage(c)}</p></div></div>${cardGuide(c)}<div class="reading-block"><h4>今のあなたへ</h4><p>${interpret(c)}</p></div><div class="reading-block"><h4>今日からできる小さな行動</h4><p>${readingAction(c)}</p></div>`;setupResultArtClicks()}
   else{body.innerHTML=`<div class="three-carousel" aria-label="過去・現在・未来のカード"><button class="carousel-nav carousel-prev" aria-label="前のカード">‹</button><div class="carousel-stage">${state.selected.map((c,i)=>`<button class="carousel-card" data-index="${i}" aria-label="${modes[state.mode].positions[i]} ${c.jp}">${cardArt(c,'carousel-art')}<span>${modes[state.mode].positions[i]}</span></button>`).join('')}</div><button class="carousel-nav carousel-next" aria-label="次のカード">›</button><div class="carousel-dots">${state.selected.map((_,i)=>`<button class="carousel-dot" aria-label="${i+1}枚目"></button>`).join('')}</div></div><div class="carousel-reading"></div><div class="reading-block"><h4>三枚をつなぐ物語</h4><p>${threeStory()}</p></div><div class="reading-block"><h4>次の一歩</h4><p>${readingAction(state.selected[1])}</p></div>`;setupThreeCarousel()}
   body.insertAdjacentHTML('beforeend',repeatedReadingWarning());
   if(TEST_MODE)body.insertAdjacentHTML('beforeend',testGradeMarkup());
