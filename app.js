@@ -192,7 +192,7 @@ function reveal(){
     const el=document.createElement('div');
     el.className=`flip-card ritual-card ${state.visual.glow} ${state.visual.motion} ${state.visual.filter} ${cardFxClass(c)}`;
     el.style.setProperty('--delay',`${i*.55}s`);
-    el.innerHTML=`${specialFxMarkup()}<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}"></div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;
+    el.innerHTML=`${specialFxMarkup()}<div class="card-aura"></div><div class="flip-inner"><div class="flip-face"><img src="images/card-back.svg" alt="カードの裏面"></div><div class="flip-face flip-front ${c.reversed?'reversed':''}"><img src="images/${String(c.n).padStart(2,'0')}-${c.slug}.png" alt="${c.jp}">${cardWatermark(c,true)}</div></div><div class="card-caption">${modes[state.mode].positions[i]}</div>`;
     wrap.appendChild(el);
     return el;
   };
@@ -310,11 +310,17 @@ const CARD_GUIDE=[{"art":"崖の上を歩く旅人と小さな白い動物。足
 function cardGuide(c){const g=CARD_GUIDE[Number(c.n)];if(!g)return '';return `<section class="reading-block card-guide" aria-label="${c.jp}の絵柄と意味"><h4>絵柄とカードの意味</h4><p class="guide-label">絵柄の象徴</p><p>${g.art}</p><div class="guide-meanings"><div class="guide-meaning ${c.reversed?'':'chosen'}"><strong>正位置${c.reversed?'':'・今回'}</strong><p>${g.upright}</p></div><div class="guide-meaning ${c.reversed?'chosen':''}"><strong>逆位置${c.reversed?'・今回':''}</strong><p>${g.reversed}</p></div></div></section>`}
 let resultCarouselTimer=null;
 function cardImagePath(c){return `images/${String(c.n).padStart(2,'0')}-${c.slug}.png`}
-function cardArt(c,extra=''){return `<div class="result-card-frame ${extra} ${state.visual?.glow||''} ${state.visual?.filter||''} ${cardFxClass(c)}">${specialFxMarkup()}<div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}" loading="eager"></div>`}
+// Display-only watermark: original card image files are unchanged.
+function cardWatermark(c,flip=false){
+  const sizes={15:[1012,1554],16:[1023,1537],17:[1023,1537],18:[1023,1537]};
+  const [w,h]=sizes[Number(c.n)]||[1024,1536];
+  return `<svg class="card-watermark ${c.reversed?'reversed':''}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid ${flip?'slice':'meet'}" aria-hidden="true" focusable="false"><text x="605" y="51" textLength="220" lengthAdjust="spacingAndGlyphs" fill="#d4bc80" font-family="Georgia, Times New Roman, serif" font-size="24">REIGNITE TAROT</text></svg>`;
+}
+function cardArt(c,extra=''){return `<div class="result-card-frame ${extra} ${state.visual?.glow||''} ${state.visual?.filter||''} ${cardFxClass(c)}">${specialFxMarkup()}<div class="card-aura"></div><img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}" loading="eager">${cardWatermark(c)}</div>`}
 function openCardLightbox(c){
   let box=document.querySelector('.card-lightbox');
   if(!box){box=document.createElement('div');box.className='card-lightbox';box.innerHTML='<button class="lightbox-close" aria-label="閉じる">×</button><div class="lightbox-stage"></div>';document.body.appendChild(box);box.onclick=e=>{if(e.target===box||e.target.closest('.lightbox-close'))box.classList.remove('show')}}
-  box.querySelector('.lightbox-stage').innerHTML=`<img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}">`;
+  box.querySelector('.lightbox-stage').innerHTML=`<img class="${c.reversed?'reversed':''}" src="${cardImagePath(c)}" alt="${c.jp}">${cardWatermark(c)}`;
   box.classList.add('show');
 }
 function setupResultArtClicks(){
